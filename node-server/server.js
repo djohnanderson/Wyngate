@@ -106,8 +106,8 @@ if (protocol === 'http') {
     });
 } else {
     var options = {
-      key: fs.readFileSync('server.key'),
-      cert: fs.readFileSync('server.crt')
+      key: fs.readFileSync('/etc/httpd/conf/ssl.key/server.key'),
+      cert: fs.readFileSync('/etc/httpd/conf/ssl.crt/server.crt')
     };
 
     https.createServer(options, app).listen(port, function(){
