@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+import os, re, sys, argparse, datetime
+
+parser = argparse.ArgumentParser(description='Delete JPGs earlier than a certain date')
+parser.add_argument('-d','--date', help='date in form path/imageYY-MM-DD', required=True)
+args = parser.parse_args()
+dateRegex = re.compile('^image(\d\d)-(\d\d)-(\d\d)$')
+datePathRegex = re.compile('(.*)image(\d\d)-(\d\d)-(\d\d)$')
+
+def parseDate (dateString):
+    match = dateRegex.match(dateString)
+    date = None
+    if match:
+        year = int(match.group(1))
+        month = int(match.group(2))
+        day = int(match.group(3))
+        try:
+            date = datetime.date(2000 + year, month, day)
+        except ValueError:
+            pass
+    return date
+
+def parseDatePath (dateName):
+    match = datePathRegex.match(getattr(args,dateName))
+    path = None
+    date = None
+    if match:
+        path = match.group(1)
+        year = int(match.group(2))
+        month = int(match.group(3))
+        day = int(match.group(4))
+        try:
+            date = datetime.date(2000 + year, month, day)
+        except ValueError:
+            pass
+    if date is None:
+        print '%s needs to be in the form imageYY-MM-DD' % dateName
+        sys.exit(0)
+    if path == "":
+        path = './'
+    return path, date
+
+datePath, endDate = parseDatePath ('date')
+
+files = os.listdir(datePath)
+files.sort()
+for filename in files:
+    date = parseDate(filename)
+    if date is not None and date < endDate:
+        command = 'rm -rf ' + datePath + filename + '/*.jpg'
+        os.system(command)
+        print(command)
+        
