@@ -87,8 +87,17 @@ Ext.define('Wyngate.controller.Main', {
                         cardLayout.setActiveItem(me.getLogin());
                     }
                 },
+                'mainapp': {
+                    show: function() {
+                        // start playing the most recent video
+                        var videoPane = me.getVideoPane();
+
+                        if (!videoPane.src && this.maxDateVideo)
+                            videoPane.setSrc (this.maxDateVideo);
+                    }
+                },
                 'mainapp #dateButton': {
-                    afterrender: function(button) {
+                    render: function(button) {
                         ExtRemote.DXBackend.getVideoDates({},
                             function(result, event){
                                 var videoPane, maxDate;
@@ -116,9 +125,7 @@ Ext.define('Wyngate.controller.Main', {
                                     // Use ownerButton as the upward link. Menus *must have no ownerCt* - they are global floaters.
                                     // Upward navigation is done using the up() method.
                                     button.menu.ownerButton = button;
-                                
-                                    // start playing the most recent video
-                                    videoPane.setSrc (me.dateToVideoURL (maxDate));
+                                    me.maxDateVideo = me.dateToVideoURL (maxDate);
                                 }
                             }
                         );

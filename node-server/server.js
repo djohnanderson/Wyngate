@@ -18,7 +18,7 @@ var express = require('express'),
 
 var app = express();
 
-nconf.env().file({file: 'server-config.json'});
+nconf.env().file({file: path.join(__dirname, 'server-config.json')});
 
 environment = global.App.mode = process.env.NODE_ENV || 'development';
 

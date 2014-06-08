@@ -5,7 +5,8 @@ from datetime import datetime
 
 parser = argparse.ArgumentParser(description='Make a video from JPEGs in a folder')
 parser.add_argument('-f','--folder', help='Folder of JPEGs', default="")
-parser.add_argument('-o','--output', help='Folder of JPEGs', default="")
+parser.add_argument('-o','--output', help='filename of video inside the foler', default="")
+parser.add_argument('-u','--upload', help='directory to upload the video folder containing video', default="")
 parser.add_argument('-b','--bitrate', help='bitrate in kilobits per second', default='2500')
 args = parser.parse_args()
 
@@ -36,7 +37,7 @@ files.sort()
 
 regex = re.compile('^(image\d\d-\d\d-\d\d)')
 tempDirectoryName = tempfile.mkdtemp()
-os.removedirs(tempDirectoryName)
+shutil.rmtree(tempDirectoryName, ignore_errors=True)
 os.makedirs(tempDirectoryName)
 
 index = 0
@@ -48,6 +49,13 @@ for filename in files:
             shutil.copy(filepath, tempDirectoryName + '/image%04d.jpg' % index)
             index = index + 1
 
-os.system('/usr/bin/avconv -y -r 10 -i ' + tempDirectoryName + '/image\%04d.jpg -r 10 ' + bitrate + ' -vcodec libx264 ' + output)
-os.removedirs(tempDirectoryName)
+os.system('/usr/bin/avconv -loglevel verbose -y -r 10 -i ' + tempDirectoryName + '/image\%04d.jpg -r 10 ' + bitrate + ' -vcodec libx264 ' + output)
+shutil.rmtree(tempDirectoryName, ignore_errors=True)
 
+def getFileNameFromPath (path):
+    if path.endswith("/"):
+        path = path[:-1]
+    return os.path.basename(path)
+
+if (args.upload):
+    os.system("rsync -avz " + output + " " + args.upload + "/" + getFileNameFromPath(folder) + "/")

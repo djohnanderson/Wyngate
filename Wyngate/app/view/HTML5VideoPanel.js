@@ -6,6 +6,7 @@ Ext.define('Wyngate.view.HTML5VideoPanel', {
     setSrc: function (src) {
         var video = this.video.dom;
 
+        this.src = src;
         video.src = src;
         video.load();
         video.play();
@@ -64,6 +65,7 @@ Ext.define('Wyngate.view.HTML5VideoPanel', {
               me.video.on ({
                   loadedmetadata: function () {
                       me.ownerCt.doLayout();
+                      this.currentTime = 30;
                   }
               });
             }

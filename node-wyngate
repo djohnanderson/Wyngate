@@ -1,114 +1,100 @@
 #!/bin/bash
-#
-# Service script for a Node.js application running under Forever.
-#
-# This is suitable for Fedora, Red Hat, CentOS and similar distributions.
-# It will not work on Ubuntu or other Debian-style distributions!
-#
-# There is some perhaps unnecessary complexity going on in the relationship between
-# Forever and the server process. See: https://github.com/indexzero/forever
-#
-# 1) Forever starts its own watchdog process, and keeps its own configuration data 
-# in /var/run/forever.
-#
-# 2) If the process dies, Forever will restart it: if it fails but continues to run, 
-# it won't be restarted.
-#
-# 3) If the process is stopped via this script, the pidfile is left in place; this 
-# helps when issues happen with failed stop attempts.
-#
-# 4) Which means the check for running/not running is complex, and involves parsing 
-# of the Forever list output.
-#
-# chkconfig: 345 80 20
-# description: my application description
-# processname: wynage
-# pidfile: /var/run/wynage.pid
-# logfile: /var/log/wynage.log
-#
  
-# Source function library.
-. /etc/init.d/functions
+# MyApplication
+# Maintainer: Tapas
+# Authors: tapas.mishra@linuxfunda.com
+# chkconfig: - 80 05
  
-NAME=wyngate
-SOURCE_DIR=/home/john/domains/djohnanderson.com/node-server/
-SOURCE_FILE=server.js
-export NODE_ENV=${NODE_ENV:="production"}
-
-user=john
-pidfile=/var/run/$NAME.pid
-logfile=/var/log/$NAME.log
-forever_dir=/var/run/forever
+### BEGIN INIT INFO
+# Provides:          mynodejsapplication
+# Required-Start:    $syslog $remote_fs
+# Required-Stop:     $syslog $remote_fs
+# Should-Start:      $local_fs
+# Should-Stop:       $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Script for My Node Application
+# Description:       Script for My Node Application
+### END INIT INFO
  
-node=node
-forever=forever
-sed=sed
-whoami
+# An application name to display in echo text.
+# An application name to display in echo text.
+# NAME="My Application"
+# The full path to the directory containing the node and forever binaries.
+# NODE_BIN_DIR=/home/node/local/node/bin
+# Set the NODE_PATH to the Node.js main node_modules directory.
+# NODE_PATH=/home/node/local/node/lib/node_modules
+# The directory containing the application start Javascript file.
+# APPLICATION_DIRECTORY=/home/node/my-application
+# The application start Javascript filename.
+# APPLICATION_START=start-my-application.js
+# Process ID file path.
+# PIDFILE=/var/run/my-application.pid
+# Log file path.
+# LOGFILE=/var/log/my-application.log
  
-export PATH=/usr/local/sbin:/usr/local/bin:$PATH:/root/bin:/home/john/domains/djohnanderson.com/node-server/node_modules/forever/bin:
-export NODE_PATH=$NODE_PATH:/home/john/domains/djohnanderson.com/node-server/node_modules
-
+USER=john
+NAME="wyngate"
+APPLICATION_DIRECTORY=/home/john/domains/djohnanderson.com/node-server/
+APPLICATION_START=server.js
+PIDPATH=$APPLICATION_DIRECTORY
+PIDFILE=$PIDPATH/$NAME.pid
+LOGFILE=/var/log/$NAME.log
+ 
 start() {
-  echo "Starting $NAME node instance in $NODE_ENV mode: "
- 
-  if [ "$foreverid" == "" ]; then
-    # Create the log and pid files, making sure that 
-    # the target use has access to them
-    touch $logfile
-    chown $user $logfile
- 
-    touch $pidfile
-    chown $user $pidfile
- 
-    cd $SOURCE_DIR
-
-    # Launch the application
-    daemon --user=john $forever start -p $forever_dir --pidFile $pidfile -l $logfile -a -d $SOURCE_FILE
+    if [ -f $PIDFILE ]; then
+        stop
+        rm $PIDFILE
+    fi
+    echo "Starting $NAME"
+    su - $USER -c "export NODE_ENV=${NODE_ENV:="production"}; \
+                  cd $APPLICATION_DIRECTORY; \
+                  forever --pidFile $PIDFILE -p $PIDPATH --sourceDir $APPLICATION_DIRECTORY \
+                  -a -l $LOGFILE --minUptime 5000 --spinSleepTime 2000 \
+                  --uid node-wyngate start $APPLICATION_START &"
     RETVAL=$?
-  else
-    echo "Instance already running"
-    RETVAL=0
-  fi
 }
  
 stop() {
-  echo -n "Shutting down $NAME node instance : "
-  if [ "$foreverid" != "" ]; then
-    $forever stop -p $forever_dir $id
-  else
-    echo "Instance is not running";
-  fi
-  RETVAL=$?
+    if [ -f $PIDFILE ]; then
+        echo "Shutting down $NAME"
+        su - $USER -c "forever stop node-wyngate"
+        RETVAL=$?
+    else
+        echo "$NAME is not running."
+        RETVAL=0
+    fi
 }
  
-if [ -f $pidfile ]; then
-  read pid < $pidfile
-else
-  pid=""
-fi
- 
-if [ "$pid" != "" ]; then
-  # Gnarly sed usage to obtain the foreverid.
-  sed1="/$pid\]/p"
-  sed2="s/.*\[\([0-9]\+\)\].*\s$pid\.*/\1/g"
-  foreverid=`$forever list -p $forever_dir | $sed -n $sed1 | $sed $sed2`
-else
-  foreverid=""
-fi
-
-case "$1" in
-  start)
-    start
-    ;;
-  stop)
+restart() {
+    echo "Restarting $NAME"
     stop
-    ;;
-  status)
-    status -p ${pidfile}
-    ;;
-  *)
-    echo "Usage:  {start|stop|status}"
-    exit 1
-    ;;
+    start
+}
+ 
+status() {
+    echo "Status for $NAME:"
+    su - $USER -c "forever list"
+    RETVAL=$?
+    echo $RETVAL
+}
+ 
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart)
+        restart
+        ;;
+    *)
+        echo "Usage: {start|stop|status|restart}"
+        exit 1
+        ;;
 esac
 exit $RETVAL
