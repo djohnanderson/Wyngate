@@ -6,6 +6,7 @@ parser = argparse.ArgumentParser(description='Create videos in a range of dates'
 parser.add_argument('-s','--start', help='start date in form path/imageYY-MM-DD', required=True)
 parser.add_argument('-e','--end', help='start date in form imageYY-MM-DD', required=True)
 parser.add_argument('-b','--bitrate', help='bitrate in kilobits per second')
+parser.add_argument('-u','--upload', help='directory to upload the video folder containing video', default="")
 args = parser.parse_args()
 dateRegex = re.compile('^image(\d\d)-(\d\d)-(\d\d)$')
 datePathRegex = re.compile('(.*)image(\d\d)-(\d\d)-(\d\d)$')
@@ -66,8 +67,11 @@ files.sort()
 for filename in files:
     date = parseDate(filename)
     if date is not None and date >= startDate and date <= endDate:
-        command = 'makeVideo.py -f %s' % startPath + filename
+        folder = startPath + filename
+        command = 'makeVideo.py -f %s' % folder
         if bitrate:
             command += ' -b %d' % bitrate
         os.system(command)
+        if (args.upload):
+            os.system("rsync -avz " + folder + "/timelapse.mp4" + " " + args.upload + "/" + filename + "/")
         print (filename)

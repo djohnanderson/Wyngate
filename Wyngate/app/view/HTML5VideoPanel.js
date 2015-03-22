@@ -24,9 +24,9 @@ Ext.define('Wyngate.view.HTML5VideoPanel', {
                 var fallback = "Your browser doesn't support html5 video.",
                     size = me.getSize(),
                     config;
- 
+
                 /* match the video size to the panel dimensions */
- 
+
                 config = Ext.copyTo({
                     tag: 'video',
                     width: size.width,
@@ -34,40 +34,42 @@ Ext.define('Wyngate.view.HTML5VideoPanel', {
                     autoplay: false,
                     controls: true
                 }, me, 'src, type, width, height, poster, start, loopstart, loopend, playcount, autobuffer, loop');
- 
-              /* just having the params exist enables them */
-              if (me.autoplay)
-                  config.autoplay = 1;
-              if (me.controls)
-                  config.controls = 1;
- 
-              /* handle multiple sources */
-              if (Ext.isArray(me.src)) {
-                  config.children = [];
- 
-                  Ext.Array.each(me.src, function (item) {
-                      config.children.push(
-                          Ext.applyIf({tag: 'source'}, item)
-                      );
-                  });
- 
-                  config.children.push({
-                      html: fallback
+
+                /* just having the params exist enables them */
+                if (me.autoplay)
+                    config.autoplay = 1;
+                if (me.controls)
+                    config.controls = 1;
+
+                /* handle multiple sources */
+                if (Ext.isArray(me.src)) {
+                    config.children = [];
+
+                    Ext.Array.each(me.src, function(item) {
+                        config.children.push(
+                            Ext.applyIf({
+                                tag: 'source'
+                            }, item)
+                        );
                     });
-              } else {
-                config.src  = me.src;
-                config.html = fallback;
-              }
- 
-              me.video = me.body.createChild(config);
-              
-              //resize the video once the size is know.
-              me.video.on ({
-                  loadedmetadata: function () {
-                      me.ownerCt.doLayout();
-                      this.currentTime = 30;
-                  }
-              });
+
+                    config.children.push({
+                        html: fallback
+                    });
+                } else {
+                    config.src = me.src;
+                    config.html = fallback;
+                }
+
+                me.video = me.body.createChild(config);
+
+                //resize the video once the size is know.
+                me.video.on({
+                    loadedmetadata: function() {
+                        me.ownerCt.doLayout();
+                        this.currentTime = 30;
+                    }
+                });
             }
         });
 
