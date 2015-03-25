@@ -40,17 +40,13 @@ if(ServerConfig.enableCompression){
 
 if(ServerConfig.enableSessions){
     var session = require('express-session'),
-        redisStore = require('connect-redis')(session),
         cookieParser = require('cookie-parser');
 
     app.use(cookieParser());
-    app.use(session({
-      store: new redisStore({
-        db: 'Wyngate',
-        pass: ServerConfig.sessionSecret
-      }),
-      secret: 'aKMHX6nsFZe2Rq'
-    }));
+    app.use(session({ 
+        secret: ServerConfig.sessionSecret,
+        store: new session.MemoryStore})
+    );
 }
 
 app.use(express.static(path.join(__dirname, ServerConfig.webRoot)));
