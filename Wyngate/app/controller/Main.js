@@ -11,6 +11,12 @@ Ext.define('Wyngate.controller.Main', {
         selector: 'mainapp #videoPane',
         ref: 'videoPane'
     }, {
+        selector: 'mainapp #dateButton',
+        ref: 'dateButton'
+    }, {
+        selector: 'mainapp #datePicker',
+        ref: 'datePicker'
+    }, {
         selector: 'login',
         ref: 'login'
     }, {
@@ -51,15 +57,46 @@ Ext.define('Wyngate.controller.Main', {
                         });
                     });
                 } else {
-                    cardLayout = me.getCardPanel().getLayout();
-                    cardLayout.setActiveItem(me.getAppMain());
+                    ExtRemote.DXBackend.getVideoDates({},
+                        function(result, event){
+                            var datePicker = me.getDatePicker(),
+                                maxDate;
+
+                            if (event.status) {
+                                maxDate = Ext.Date.parse(result.maxDate, 'm/d/Y');
+                                datePicker.setMinDate(Ext.Date.parse(result.minDate, 'm/d/Y'));
+                                datePicker.setMaxDate(maxDate);
+                                datePicker.setDisabledDates(result.disabledDates);
+                                datePicker.setValue(maxDate);
+                                me.currentDate = maxDate;
+                                cardLayout = me.getCardPanel().getLayout();
+                                cardLayout.setActiveItem(me.getAppMain());
+                            }
+                        });
                 }
             }
         );
     },
 
-    dateToVideoURL: function (date) {
-        return 'resources/wyngate/image' + Ext.Date.format(date, 'y-m-d') + '/timelapse.mp4'; //'#t=25';
+    setVideoForDate: function(date) {
+        var videoPane = this.getVideoPane(),
+            date = date || this.currentDate,
+            videoURL;
+
+        if (date) {
+            this.currentDate = date;
+            videoURL = 'resources/wyngate/image' + Ext.Date.format(date, 'y-m-d') + '/timelapse.mp4'; //'#t=25';
+            videoPane.setSrc (videoURL);
+        }
+    },
+    
+    setEnableDates: function (end) {
+        var provider = Ext.state.Manager.getProvider(),
+            params = {};
+
+        console.log (provider.get ('user'));
+        params[end] = Ext.Date.format(this.currentDate, 'Y-m-d');
+        ExtRemote.DXBackend.setEnableDates(params);
     },
 
     init: function() {
@@ -89,50 +126,27 @@ Ext.define('Wyngate.controller.Main', {
                 },
                 'mainapp': {
                     show: function() {
-                        // start playing the most recent video
-                        var videoPane = me.getVideoPane();
-
-                        if (!videoPane.src && this.maxDateVideo)
-                            videoPane.setSrc (this.maxDateVideo);
+                        // start playing the most recent video if we don't have one showing yet.
+                        me.setVideoForDate();
                     }
                 },
-                'mainapp #dateButton': {
-                    render: function(button) {
-                        ExtRemote.DXBackend.getVideoDates({},
-                            function(result, event){
-                                var videoPane, maxDate;
-
-                                if (event.status) {
-                                    videoPane = me.getVideoPane(),
-                                    maxDate = Ext.Date.parse(result.maxDate, 'm/d/Y');
-
-                                    // Create and append the menu DatePicker to the button.
-                                    // They way we do this is adapted from the ExtJS button code.
-                                    button.split = true;
-                                    maxDate = Ext.Date.parse(result.maxDate, 'm/d/Y');
-                                    button.menu = new Ext.menu.DatePicker({
-                                        xtype: 'datemenu',
-                                        pickerId: 'datePicker',
-                                        minDate: Ext.Date.parse(result.minDate, 'm/d/Y'),
-                                        maxDate: maxDate,
-                                        disabledDates: result.disabledDates,
-                                        handler: function(datePicker, date){
-                                            videoPane.setSrc (me.dateToVideoURL (date));
-                                        }
-                                    });
-                                    button.menu.picker.setValue(maxDate);
-                            
-                                    // Use ownerButton as the upward link. Menus *must have no ownerCt* - they are global floaters.
-                                    // Upward navigation is done using the up() method.
-                                    button.menu.ownerButton = button;
-                                    me.maxDateVideo = me.dateToVideoURL (maxDate);
-                                }
-                            }
-                        );
+                'mainapp #datePicker': {
+                    select: function(picker, date) {
+                        me.setVideoForDate(date);
                     }
                 }
             };
         
         me.control(config);
+        new Ext.util.KeyMap(Ext.get(document), [{
+            key: Ext.EventObject.S,
+            ctrl: true,
+            fn: Ext.bind(me.setEnableDates, me, ['start'])
+        }, {
+            key: Ext.EventObject.E,
+            ctrl: true,
+            fn: Ext.bind(me.setEnableDates, me, ['end'])
+        }]);
+        
     }
 });

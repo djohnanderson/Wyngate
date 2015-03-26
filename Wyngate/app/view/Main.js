@@ -15,6 +15,10 @@ Ext.define('Wyngate.view.Main', {
                 tbar: [{
                     text: 'Choose a Date',
                     itemId: 'dateButton',
+                    menu: {
+                        xtype: 'datemenu',
+                        pickerId: 'datePicker'
+                    },
                     tooltip: 'Pick a date of the video you want to view'
                 }, {
                     text: 'Logout',
