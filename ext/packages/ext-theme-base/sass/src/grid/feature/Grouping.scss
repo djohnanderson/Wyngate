@@ -1,7 +1,5 @@
-.#{$prefix}grid-group,
-.#{$prefix}grid-group-body,
-.#{$prefix}grid-group-hd {
-    zoom: 1;
+.#{$prefix}group-hd-container {
+    overflow: hidden;
 }
 
 .#{$prefix}grid-group-hd {

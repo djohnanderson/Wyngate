@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * This override provides extra, border layout specific methods for `Ext.Component`. The
  * `Ext.layout.container.Border` class requires this override so that the added functions
@@ -89,10 +72,18 @@ Ext.define('Ext.layout.container.border.Region', {
      * `"west"`).
      * @return {String} The previous value of the `region` property.
      */
-    setBorderRegion: function (region) {
+    setRegion: function (region) {
         var me = this,
             borderLayout,
             old = me.region;
+
+        //<debug>
+        if (typeof region !== 'string') {
+            // This method used to be basically the same as setBox, so check for an
+            // accidental use of the old signature.
+            Ext.Error.raise('Use setBox to set the size or position of a component.');
+        }
+        //</debug>
 
         if (region !== old) {
             borderLayout = me.getOwningBorderLayout();
@@ -177,7 +168,7 @@ Ext.define('Ext.layout.container.border.Region', {
      * @param {Number} weight The new `weight` value.
      * @return {Number} The previous value of the `weight` property.
      */
-    setRegionWeight: function (weight) {
+    setWeight: function (weight) {
         var me = this,
             ownerCt = me.getOwningBorderContainer(),
             placeholder = me.placeholder,
@@ -198,4 +189,11 @@ Ext.define('Ext.layout.container.border.Region', {
 
         return old;
     }
+},
+function (Component) {
+    var proto = Component.prototype;
+
+    // Aliases for v4 compat
+    proto.setBorderRegion = proto.setRegion;
+    proto.setRegionWeight = proto.setWeight;
 });

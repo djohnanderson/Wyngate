@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * A specialized grid implementation intended to mimic the traditional property grid as typically seen in
  * development IDEs.  Each row in the grid represents a property of some object, and the data is stored
@@ -243,6 +226,27 @@ Ext.define('Ext.grid.property.Grid', {
 
     gridCls: Ext.baseCSSPrefix + 'property-grid',
 
+    /**
+     * @event beforepropertychange
+     * Fires before a property value changes.  Handlers can return false to cancel the property change
+     * (this will internally call {@link Ext.data.Model#reject} on the property's record).
+     * @param {Object} source The source data object for the grid (corresponds to the same object passed in
+     * as the {@link #source} config property).
+     * @param {String} recordId The record's id in the data store
+     * @param {Object} value The current edited property value
+     * @param {Object} oldValue The original property value prior to editing
+     */
+
+    /**
+     * @event propertychange
+     * Fires after a property value has changed.
+     * @param {Object} source The source data object for the grid (corresponds to the same object passed in
+     * as the {@link #source} config property).
+     * @param {String} recordId The record's id in the data store
+     * @param {Object} value The current edited property value
+     * @param {Object} oldValue The original property value prior to editing
+     */
+
     // private
     initComponent : function() {
         var me = this;
@@ -263,11 +267,11 @@ Ext.define('Ext.grid.property.Grid', {
         }));
 
         me.selModel = {
-            selType: 'cellmodel',
+            type: 'cellmodel',
             onCellSelect: function(position) {
                 // We are only allowed to select the value column.
-                position.columnHeader = me.valueColumn;
-                position.column = me.valueColumn.getVisibleIndex();
+                position.column = me.valueColumn;
+                position.colIdx = me.valueColumn.getVisibleIndex();
                 return this.self.prototype.onCellSelect.call(this, position);
             }
         };
@@ -285,29 +289,6 @@ Ext.define('Ext.grid.property.Grid', {
         }
         me.columns = new Ext.grid.property.HeaderContainer(me, me.store);
 
-        me.addEvents(
-            /**
-             * @event beforepropertychange
-             * Fires before a property value changes.  Handlers can return false to cancel the property change
-             * (this will internally call {@link Ext.data.Model#reject} on the property's record).
-             * @param {Object} source The source data object for the grid (corresponds to the same object passed in
-             * as the {@link #source} config property).
-             * @param {String} recordId The record's id in the data store
-             * @param {Object} value The current edited property value
-             * @param {Object} oldValue The original property value prior to editing
-             */
-            'beforepropertychange',
-            /**
-             * @event propertychange
-             * Fires after a property value has changed.
-             * @param {Object} source The source data object for the grid (corresponds to the same object passed in
-             * as the {@link #source} config property).
-             * @param {String} recordId The record's id in the data store
-             * @param {Object} value The current edited property value
-             * @param {Object} oldValue The original property value prior to editing
-             */
-            'propertychange'
-        );
         me.callParent();
 
         // Inject a custom implementation of walkCells which only goes up or down
@@ -343,7 +324,7 @@ Ext.define('Ext.grid.property.Grid', {
             for (; i < len; ++i) {
                 rec = store.getAt(i);
                 name = rec.get(nameField);
-                if (!me.getConfig(name, 'type')) {
+                if (!me.getConfigProp(name, 'type')) {
                     value = rec.get(valueField);
                     if (Ext.isDate(value)) {
                         type = 'date';
@@ -354,13 +335,13 @@ Ext.define('Ext.grid.property.Grid', {
                     } else {
                         type = 'string';
                     }
-                    me.setConfig(name, 'type', type);
+                    me.setConfigProp(name, 'type', type);
                 }
             }
         }
     },
 
-    getConfig: function(fieldName, key, defaultValue) {
+    getConfigProp: function(fieldName, key, defaultValue) {
         var config = this.sourceConfig[fieldName],
             out;
 
@@ -370,7 +351,7 @@ Ext.define('Ext.grid.property.Grid', {
         return out || defaultValue;
     },
 
-    setConfig: function(fieldName, key, value) {
+    setConfigProp: function(fieldName, key, value) {
         var sourceCfg = this.sourceConfig,
             o = sourceCfg[fieldName];
 
@@ -453,8 +434,8 @@ Ext.define('Ext.grid.property.Grid', {
         pos = Ext.view.Table.prototype.walkCells.call(me, pos, direction, e, preventWrap, verifierFn, scope);
 
         // We are only allowed to navigate to the value column.
-        pos.columnHeader = valueColumn;
-        pos.column = valueColumn.getVisibleIndex();
+        pos.column = valueColumn;
+        pos.colIdx = valueColumn.getVisibleIndex();
         return pos;
     },
 
@@ -464,8 +445,8 @@ Ext.define('Ext.grid.property.Grid', {
         var me = this,
             propName = record.get(me.nameField),
             val = record.get(me.valueField),
-            editor = me.getConfig(propName, 'editor'),
-            type = me.getConfig(propName, 'type'),
+            editor = me.getConfigProp(propName, 'editor'),
+            type = me.getConfigProp(propName, 'type'),
             editors = me.editors;
 
         // A custom editor was found. If not already wrapped with a CellEditor, wrap it, and stash it back
@@ -475,7 +456,7 @@ Ext.define('Ext.grid.property.Grid', {
                 if (!(editor instanceof Ext.form.field.Base)) {
                     editor = Ext.ComponentManager.create(editor, 'textfield');
                 }
-                editor = me.setConfig(propName, 'editor', new Ext.grid.CellEditor({ field: editor }));
+                editor = me.setConfigProp(propName, 'editor', new Ext.grid.CellEditor({ field: editor }));
             }
         } else if (type) {
             switch (type) {
@@ -503,6 +484,7 @@ Ext.define('Ext.grid.property.Grid', {
 
         // Give the editor a unique ID because the CellEditing plugin caches them
         editor.editorId = propName;
+        editor.field.column = me.valueColumn;
         return editor;
     },
 

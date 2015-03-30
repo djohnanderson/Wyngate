@@ -27,7 +27,7 @@
  * @param {string} [$ui-tool-background-image=$tip-tool-background-image]
  * The sprite to use for the header {@link Ext.panel.Tool Tools}
  *
- * @param {number/list} [$ui-header-body-padding=$tip-header-body-padding]
+ * @param {number/list} [$ui-header-padding=$tip-header-padding]
  * The padding of the Tip header's body element
  *
  * @param {color} [$ui-header-color=$tip-header-color]
@@ -72,7 +72,7 @@
 
     $ui-tool-spacing: $tip-tool-spacing,
     $ui-tool-background-image: $tip-tool-background-image,
-    $ui-header-body-padding: $tip-header-body-padding,
+    $ui-header-padding: $tip-header-padding,
     $ui-header-color: $tip-header-color,
     $ui-header-font-size: $tip-header-font-size,
     $ui-header-font-weight: $tip-header-font-weight,
@@ -154,11 +154,11 @@
         }
     }
 
-    .#{$prefix}tip-header-body-#{$ui} {
-        padding: $ui-header-body-padding;
+    .#{$prefix}tip-header-#{$ui} {
+        padding: $ui-header-padding;
     }
 
-    .#{$prefix}tip-header-text-container-#{$ui} {
+    .#{$prefix}tip-header-title-#{$ui} {
         color: $ui-header-color;
         font-size: $ui-header-font-size;
         font-weight: $ui-header-font-weight;
@@ -187,15 +187,6 @@
     border-style: solid;
     border-width: 5px;
     border-color: $tip-border-color;
-
-    zoom: 1;
-    
-    @if $include-content-box {
-        .#{$prefix}content-box & {
-            height: 0;
-            width: 0;
-        }
-    }
 }
 
 .#{$prefix}tip-anchor-top {

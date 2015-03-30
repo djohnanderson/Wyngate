@@ -1,21 +1,4 @@
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
-/*
  * This file defines the core framework "shortcuts". These are the modes and states of the
  * various components keyed by their xtype.
  * 
@@ -191,6 +174,14 @@ Ext.theme.addShortcuts({
             }
         },
         {
+            filename: 'tab-{ui}-top-focus',
+            config: {
+                text: 'Focused Top Tab',
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
             filename: 'tab-{ui}-top-active',
             config: {
                 text: 'Active Top Tab',
@@ -207,6 +198,24 @@ Ext.theme.addShortcuts({
             }
         },
         {
+            filename: 'tab-{ui}-top-focus-active',
+            config: {
+                text: 'Focused Active Top Tab',
+                active: true,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-top-focus-over',
+            over: true,
+            config: {
+                text: 'Focused Over Top Tab',
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
             filename: 'tab-{ui}-top-disabled',
             config: {
                 text: 'Disabled Top Tab',
@@ -215,10 +224,92 @@ Ext.theme.addShortcuts({
             }
         },
         {
+            filename: 'tab-{ui}-right',
+            config: {
+                text: 'Normal Right Tab',
+                tabPosition: 'right',
+                rotation: 0,
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-right-focus',
+            config: {
+                text: 'Focused Right Tab',
+                tabPosition: 'right',
+                rotation: 0,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-right-active',
+            config: {
+                text: 'Active Right Tab',
+                tabPosition: 'right',
+                rotation: 0,
+                active: true,
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-right-over',
+            over: true,
+            config: {
+                text: 'Over Right Tab',
+                tabPosition: 'right',
+                rotation: 0,
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-right-focus-active',
+            config: {
+                text: 'Focused Active Right Tab',
+                tabPosition: 'right',
+                rotation: 0,
+                active: true,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-right-focus-over',
+            over: true,
+            config: {
+                text: 'Focused Over Right Tab',
+                tabPosition: 'right',
+                rotation: 0,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-right-disabled',
+            config: {
+                text: 'Disabled Right Tab',
+                tabPosition: 'right',
+                rotation: 0,
+                closable: false,
+                disabled: true
+            }
+        },
+        {
             filename: 'tab-{ui}-bottom',
             config: {
                 text: 'Normal Bottom Tab',
-                position: 'bottom',
+                tabPosition: 'bottom',
+                rotation: 0,
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-bottom-focus',
+            config: {
+                text: 'Focused Bottom Tab',
+                tabPosition: 'bottom',
+                rotation: 0,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
                 closable: false
             }
         },
@@ -226,7 +317,8 @@ Ext.theme.addShortcuts({
             filename: 'tab-{ui}-bottom-active',
             config: {
                 text: 'Active Bottom Tab',
-                position: 'bottom',
+                tabPosition: 'bottom',
+                rotation: 0,
                 active: true,
                 closable: false
             }
@@ -236,7 +328,30 @@ Ext.theme.addShortcuts({
             over: true,
             config: {
                 text: 'Over Bottom Tab',
-                position: 'bottom',
+                tabPosition: 'bottom',
+                rotation: 0,
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-bottom-focus-active',
+            config: {
+                text: 'Focused Active Bottom Tab',
+                tabPosition: 'bottom',
+                rotation: 0,
+                active: true,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-bottom-focus-over',
+            over: true,
+            config: {
+                text: 'Focused Over Bottom Tab',
+                tabPosition: 'bottom',
+                rotation: 0,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
                 closable: false
             }
         },
@@ -244,7 +359,79 @@ Ext.theme.addShortcuts({
             filename: 'tab-{ui}-bottom-disabled',
             config: {
                 text: 'Disabled Bottom Tab',
-                position: 'bottom',
+                tabPosition: 'bottom',
+                rotation: 0,
+                closable: false,
+                disabled: true
+            }
+        },
+        {
+            filename: 'tab-{ui}-left',
+            config: {
+                text: 'Normal left Tab',
+                tabPosition: 'left',
+                rotation: 0,
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-left-focus',
+            config: {
+                text: 'Focused Left Tab',
+                tabPosition: 'left',
+                rotation: 0,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-left-active',
+            config: {
+                text: 'Active left Tab',
+                tabPosition: 'left',
+                rotation: 0,
+                active: true,
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-left-over',
+            over: true,
+            config: {
+                text: 'Over left Tab',
+                tabPosition: 'left',
+                rotation: 0,
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-left-focus-active',
+            config: {
+                text: 'Focused Active Left Tab',
+                tabPosition: 'left',
+                rotation: 0,
+                active: true,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-left-focus-over',
+            over: true,
+            config: {
+                text: 'Focused Over Left Tab',
+                tabPosition: 'left',
+                rotation: 0,
+                cls: Ext.baseCSSPrefix + 'tab-focus',
+                closable: false
+            }
+        },
+        {
+            filename: 'tab-{ui}-left-disabled',
+            config: {
+                text: 'Disabled left Tab',
+                tabPosition: 'left',
+                rotation: 0,
                 closable: false,
                 disabled: true
             }
@@ -255,21 +442,11 @@ Ext.theme.addShortcuts({
         // Floating
         {
             filename: 'window-{ui}',
-            title: 'Window',
             config: {
-                closable: false,
+                header: false,
+                resizable: false,
                 height: 200,
-                width: 200,
-                fbar: {
-                    items: [{
-                        text: 'Submit'
-                    }]
-                },
-                tbar: {
-                    items: [{
-                        text: 'Button'
-                    }]
-                }
+                width: 200
             }
         },
         // window w/header
@@ -366,7 +543,9 @@ Ext.theme.addShortcuts({
         {
             config: {
                 width: 200,
+                height: 200,
                 frame: true,
+                bodyPadding: 20,
                 html: 'Framed panel'
             }
         },
@@ -511,7 +690,8 @@ Ext.theme.addShortcuts({
             filename: 'btn-{ui}-small',
             config: {
                 scale: 'small',
-                text: 'Button'
+                text: '&#160;', 
+                width: 100
             }
         },
         {
@@ -519,30 +699,52 @@ Ext.theme.addShortcuts({
             over: true,
             config: {
                 scale: 'small',
-                text: 'Button'
+                text: '&#160;',
+                width: 100
             }
         },
         {
             filename: 'btn-{ui}-small-focus',
             config: {
                 scale: 'small',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-small-focus'
+                text: '&#160;',
+                width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus'
             }
         },
         {
             filename: 'btn-{ui}-small-pressed',
             config: {
                 scale: 'small',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-small-pressed'
+                text: '&#160;',
+				width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-pressed'
+            }
+        },
+        {
+            filename: 'btn-{ui}-small-focus-over',
+            config: {
+                scale: 'small',
+                text: '&#160;',
+                width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus ' + Ext.baseCSSPrefix + 'btn-over'
+            }
+        },
+        {
+            filename: 'btn-{ui}-small-focus-pressed',
+            config: {
+                scale: 'small',
+                text: '&#160;',
+                width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus ' + Ext.baseCSSPrefix + 'btn-pressed'
             }
         },
         {
             filename: 'btn-{ui}-small-disabled',
             config: {
                 scale: 'small',
-                text: 'Button',
+                text: '&#160;',
+				width: 100,
                 disabled: true
             }
         },
@@ -552,7 +754,8 @@ Ext.theme.addShortcuts({
             filename: 'btn-{ui}-medium',
             config: {
                 scale: 'medium',
-                text: 'Button'
+                text: '&#160;',
+				width: 100
             }
         },
         {
@@ -560,30 +763,52 @@ Ext.theme.addShortcuts({
             over: true,
             config: {
                 scale: 'medium',
-                text: 'Button'
+                text: '&#160;',
+				width: 100
             }
         },
         {
             filename: 'btn-{ui}-medium-focus',
             config: {
                 scale: 'medium',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-medium-focus'
+                text: '&#160;',
+				width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus'
             }
         },
         {
             filename: 'btn-{ui}-medium-pressed',
             config: {
                 scale: 'medium',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-medium-pressed'
+                text: '&#160;',
+				width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-pressed'
+            }
+        },
+        {
+            filename: 'btn-{ui}-medium-focus-over',
+            config: {
+                scale: 'medium',
+                text: '&#160;',
+                width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus ' + Ext.baseCSSPrefix + 'btn-over'
+            }
+        },
+        {
+            filename: 'btn-{ui}-medium-focus-pressed',
+            config: {
+                scale: 'medium',
+                text: '&#160;',
+                width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus ' + Ext.baseCSSPrefix + 'btn-pressed'
             }
         },
         {
             filename: 'btn-{ui}-medium-disabled',
             config: {
                 scale: 'medium',
-                text: 'Button',
+                text: '&#160;',
+				width: 100,
                 disabled: true
             }
         },
@@ -593,7 +818,8 @@ Ext.theme.addShortcuts({
             filename: 'btn-{ui}-large',
             config: {
                 scale: 'large',
-                text: 'Button'
+                text: '&#160;',
+				width: 100
             }
         },
         {
@@ -601,168 +827,52 @@ Ext.theme.addShortcuts({
             over: true,
             config: {
                 scale: 'large',
-                text: 'Button'
+                text: '&#160;',
+				width: 100
             }
         },
         {
             filename: 'btn-{ui}-large-focus',
             config: {
                 scale: 'large',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-large-focus'
+                text: '&#160;',
+				width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus'
             }
         },
         {
             filename: 'btn-{ui}-large-pressed',
             config: {
                 scale: 'large',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-large-pressed'
+                text: '&#160;',
+				width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-pressed'
+            }
+        },
+        {
+            filename: 'btn-{ui}-large-focus-over',
+            config: {
+                scale: 'large',
+                text: '&#160;',
+                width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus ' + Ext.baseCSSPrefix + 'btn-over'
+            }
+        },
+        {
+            filename: 'btn-{ui}-large-focus-pressed',
+            config: {
+                scale: 'large',
+                text: '&#160;',
+                width: 100,
+                cls: Ext.baseCSSPrefix + 'btn-focus ' + Ext.baseCSSPrefix + 'btn-pressed'
             }
         },
         {
             filename: 'btn-{ui}-large-disabled',
             config: {
                 scale: 'large',
-                text: 'Button',
-                disabled: true
-            }
-        },
-
-        //small toolbar button
-        {
-            filename: 'btn-{ui}-toolbar-small',
-            config: {
-                scale: 'small',
-                ui: '{ui}-toolbar',
-                text: 'Button'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-small-over',
-            over: true,
-            config: {
-                scale: 'small',
-                ui: '{ui}-toolbar',
-                text: 'Button'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-small-focus',
-            config: {
-                scale: 'small',
-                ui: '{ui}-toolbar',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-toolbar-small-focus'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-small-pressed',
-            config: {
-                scale: 'small',
-                ui: '{ui}-toolbar',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-toolbar-small-pressed'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-small-disabled',
-            config: {
-                scale: 'small',
-                ui: '{ui}-toolbar',
-                text: 'Button',
-                disabled: true
-            }
-        },
-
-        //medium toolbar button
-        {
-            filename: 'btn-{ui}-toolbar-medium',
-            config: {
-                scale: 'medium',
-                ui: '{ui}-toolbar',
-                text: 'Button'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-medium-over',
-            over: true,
-            config: {
-                scale: 'medium',
-                ui: '{ui}-toolbar',
-                text: 'Button'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-medium-focus',
-            config: {
-                scale: 'medium',
-                ui: '{ui}-toolbar',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-toolbar-medium-focus'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-medium-pressed',
-            config: {
-                scale: 'medium',
-                ui: '{ui}-toolbar',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-toolbar-medium-pressed'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-medium-disabled',
-            config: {
-                scale: 'medium',
-                ui: '{ui}-toolbar',
-                text: 'Button',
-                disabled: true
-            }
-        },
-
-        //large toolbar button
-        {
-            filename: 'btn-{ui}-toolbar-large',
-            config: {
-                scale: 'large',
-                ui: '{ui}-toolbar',
-                text: 'Button'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-large-over',
-            over: true,
-            config: {
-                scale: 'large',
-                ui: '{ui}-toolbar',
-                text: 'Button'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-large-focus',
-            config: {
-                scale: 'large',
-                ui: '{ui}-toolbar',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-toolbar-large-focus'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-large-pressed',
-            config: {
-                scale: 'large',
-                ui: '{ui}-toolbar',
-                text: 'Button',
-                cls: Ext.baseCSSPrefix + 'btn-{ui}-toolbar-large-pressed'
-            }
-        },
-        {
-            filename: 'btn-{ui}-toolbar-large-disabled',
-            config: {
-                scale: 'large',
-                ui: '{ui}-toolbar',
-                text: 'Button',
+                text: '&#160;',
+				width: 100,
                 disabled: true
             }
         }

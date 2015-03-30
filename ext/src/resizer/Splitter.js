@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * This class functions **between siblings of a {@link Ext.layout.container.VBox VBox} or {@link Ext.layout.container.HBox HBox}
  * layout** to resize both immediate siblings.
@@ -31,7 +14,7 @@ Ext.define('Ext.resizer.Splitter', {
     extend: 'Ext.Component',
     requires: ['Ext.XTemplate'],
     uses: ['Ext.resizer.SplitterTracker'],
-    alias: 'widget.splitter',
+    xtype: 'splitter',
 
     childEls: [
         'collapseEl'
@@ -39,11 +22,13 @@ Ext.define('Ext.resizer.Splitter', {
 
     renderTpl: [
         '<tpl if="collapsible===true">',
-            '<div id="{id}-collapseEl" role="presentation" class="', Ext.baseCSSPrefix, 'collapse-el ',
+            '<div id="{id}-collapseEl" data-ref="collapseEl" role="presentation" class="', Ext.baseCSSPrefix, 'collapse-el ',
                 Ext.baseCSSPrefix, 'layout-split-{collapseDir}{childElCls}">&#160;',
             '</div>',
         '</tpl>'
     ],
+
+    isSplitter: true,
 
     baseCls: Ext.baseCSSPrefix + 'splitter',
     collapsedClsInternal: Ext.baseCSSPrefix + 'splitter-collapsed',
@@ -52,11 +37,11 @@ Ext.define('Ext.resizer.Splitter', {
     canResize: true,
 
     /**
-     * @cfg {Boolean} collapsible
+     * @cfg {Boolean} [collapsible]
      * True to show a mini-collapse tool in the Splitter to toggle expand and collapse on the {@link #collapseTarget} Panel.
      * Defaults to the {@link Ext.panel.Panel#collapsible collapsible} setting of the Panel.
      */
-    collapsible: false,
+    collapsible: null,
 
     /**
      * @cfg {Boolean} performCollapse
@@ -117,6 +102,12 @@ Ext.define('Ext.resizer.Splitter', {
      */
     size: 5,
     
+    /**
+     * @cfg {Object} [tracker]
+     * Any configuration options to be passed to the underlying {@link Ext.resizer.SplitterTracker}.
+     */
+    tracker: null,
+    
     ariaRole: 'separator',
 
     /**
@@ -126,16 +117,17 @@ Ext.define('Ext.resizer.Splitter', {
      * @protected
      */
     getTrackerConfig: function () {
-        return {
+        return Ext.apply({
             xclass: 'Ext.resizer.SplitterTracker',
             el: this.el,
             splitter: this
-        };
+        }, this.tracker);
     },
 
     beforeRender: function() {
         var me = this,
-            target = me.getCollapseTarget();
+            target = me.getCollapseTarget(),
+            collapsible = me.collapsible;
 
         me.callParent();
 
@@ -148,7 +140,7 @@ Ext.define('Ext.resizer.Splitter', {
 
         Ext.applyIf(me.renderData, {
             collapseDir: me.getCollapseDirection(),
-            collapsible: me.collapsible || target.collapsible
+            collapsible: (collapsible !== null) ? collapsible : target.collapsible
         });
 
         me.protoEl.unselectable();
@@ -156,7 +148,8 @@ Ext.define('Ext.resizer.Splitter', {
 
     onRender: function() {
         var me = this,
-            collapseEl;
+            collapseEl,
+            cfg;
 
         me.callParent(arguments);
 
@@ -253,12 +246,12 @@ Ext.define('Ext.resizer.Splitter', {
     },
 
     onTargetCollapse: function(target) {
-        this.el.addCls([this.collapsedClsInternal, this.collapsedCls]);
+        this.el.addCls(this.collapsedClsInternal + ' ' + (this.collapsedCls || ''));
         this.setCollapseEl('');
     },
 
     onTargetExpand: function(target) {
-        this.el.removeCls([this.collapsedClsInternal, this.collapsedCls]);
+        this.el.removeCls(this.collapsedClsInternal + ' ' + (this.collapsedCls || ''));
         this.setCollapseEl('');
     },
 

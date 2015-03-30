@@ -20,27 +20,17 @@ Ext.define('Ext.ux.event.Driver', {
     specialKeysByCode: {
     },
 
-    constructor: function () {
-        var me = this;
+    /**
+     * @event start
+     * Fires when this object is started.
+     * @param {Ext.ux.event.Driver} this
+     */
 
-        me.callParent(arguments);
-
-        me.addEvents(
-            /**
-             * @event start
-             * Fires when this object is started.
-             * @param {Ext.ux.event.Driver} this
-             */
-            'start',
-
-            /**
-             * @event stop
-             * Fires when this object is stopped.
-             * @param {Ext.ux.event.Driver} this
-             */
-            'stop'
-        );
-    },
+    /**
+     * @event stop
+     * Fires when this object is stopped.
+     * @param {Ext.ux.event.Driver} this
+     */
 
     getTextSelection: function (el) {
         // See https://code.google.com/p/rangyinputs/source/browse/trunk/rangyinputs_jquery.js

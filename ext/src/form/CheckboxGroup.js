@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * A {@link Ext.form.FieldContainer field container} which has a specialized layout for arranging
  * {@link Ext.form.field.Checkbox} controls into columns, and provides convenience
@@ -162,18 +145,18 @@ Ext.define('Ext.form.CheckboxGroup', {
 
     /**
      * When a checkbox is added to the group, monitor it for changes
-     * @param {Object} field
+     * @param {Object} field The field being added
      * @protected
      */
-    onAdd: function(item) {
+    onAdd: function(field) {
         var me = this,
             items,
             len, i;
 
-        if (item.isCheckbox) {
-            me.mon(item, 'change', me.checkChange, me);
-        } else if (item.isContainer) {
-            items = item.items.items;
+        if (field.isCheckbox) {
+            me.mon(field, 'change', me.checkChange, me);
+        } else if (field.isContainer) {
+            items = field.items.items;
             for (i = 0, len = items.length; i < len; i++) {
                 me.onAdd(items[i]);
             }
@@ -205,7 +188,7 @@ Ext.define('Ext.form.CheckboxGroup', {
 
     /**
      * Runs CheckboxGroup's validations and returns an array of any errors. The only error by default is if allowBlank
-     * is set to true and no items are checked.
+     * is set to false and no items are checked.
      * @return {String[]} Array of all validation errors
      */
     getErrors: function() {
@@ -369,12 +352,13 @@ Ext.define('Ext.form.CheckboxGroup', {
             cbValue;
 
         me.batchChanges(function() {
+            Ext.suspendLayouts();
             for (b = 0; b < bLen; b++) {
                 box = boxes[b];
                 name = box.getName();
                 cbValue = false;
 
-                if (value && value.hasOwnProperty(name)) {
+                if (value) {
                     if (Ext.isArray(value[name])) {
                         cbValue = Ext.Array.contains(value[name], box.inputValue);
                     } else {
@@ -385,6 +369,7 @@ Ext.define('Ext.form.CheckboxGroup', {
 
                 box.setValue(cbValue);
             }
+            Ext.resumeLayouts(true);
         });
         return me;
     },

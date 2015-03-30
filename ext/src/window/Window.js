@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * A specialized panel intended for use as an application window. Windows are floated, {@link #resizable}, and
  * {@link #cfg-draggable} by default. Windows can be {@link #maximizable maximized} to fill the viewport, restored to
@@ -49,20 +32,20 @@ Ext.define('Ext.window.Window', {
 
     alternateClassName: 'Ext.Window',
 
-    requires: ['Ext.util.ComponentDragger', 'Ext.util.Region', 'Ext.EventManager'],
+    requires: ['Ext.util.ComponentDragger', 'Ext.util.Region'],
 
     alias: 'widget.window',
 
     /**
      * @cfg {Number} x
      * The X position of the left edge of the window on initial showing. Defaults to centering the Window within the
-     * width of the Window's container {@link Ext.Element Element} (The Element that the Window is rendered to).
+     * width of the Window's container {@link Ext.dom.Element Element} (The Element that the Window is rendered to).
      */
 
     /**
      * @cfg {Number} y
      * The Y position of the top edge of the window on initial showing. Defaults to centering the Window within the
-     * height of the Window's container {@link Ext.Element Element} (The Element that the Window is rendered to).
+     * height of the Window's container {@link Ext.dom.Element Element} (The Element that the Window is rendered to).
      */
 
     /**
@@ -72,7 +55,7 @@ Ext.define('Ext.window.Window', {
      */
 
     /**
-     * @cfg {String/Ext.Element} [animateTarget=null]
+     * @cfg {String/Ext.dom.Element} [animateTarget=null]
      * Id or element from which the window should animate while opening.
      */
 
@@ -87,7 +70,8 @@ Ext.define('Ext.window.Window', {
      * Specifies a Component to receive focus when this Window is focused.
      *
      * If a String is provided, the Component will be resolved using the {@link #down} method which uses {@link Ext.ComponentQuery}.
-     * If the string begins with an alphanumeric value, it will first attempt to find the Component based on the {@link Ext.AbstractComponent#id} or {@link Ext.AbstractComponent#itemId}.
+     * If the string begins with an alphanumeric value, it will first attempt to find the Component based on the {@link Ext.Component#id} or {@link Ext.Component#itemId}.
+     * If a matching component is not found via id, then an attempt to do a query to find a matching component.
      *
      * An example of finding the Component with an id/itemId:
      *
@@ -149,7 +133,8 @@ Ext.define('Ext.window.Window', {
      * In summary, defaultFocus may be one of:
      *
      *   - The index of a footer Button.
-     *   - The id or {@link Ext.AbstractComponent#itemId} of a descendant Component.
+     *   - The id or {@link Ext.Component#itemId} of a descendant Component.
+     *   - A {@link Ext.ComponentQuery query} to find a {@link Ext.Component}.
      *   - A descendant {@link Ext.Component}.
      */
 
@@ -278,6 +263,12 @@ Ext.define('Ext.window.Window', {
     closable: true,
 
     /**
+     * @cfg {Boolean} monitorResize
+     * `true` to listen to the viewport resize event and perform any layout updating if necessary.
+     * This is useful if using sizes as percentages for the window.
+     */
+
+    /**
      * @cfg {Boolean} hidden
      * Render this Window hidden. If `true`, the {@link #method-hide} method will be called internally.
      */
@@ -293,21 +284,15 @@ Ext.define('Ext.window.Window', {
     /**
      * @cfg {String}
      * @inheritdoc
-     * Windows hide using offsets in order to preserve the scroll positions of their descendants.
+     * Windows hide using offsets in order to preserve the scroll positions of their descendants.  You may review
+     * other configuration options here: {@link Ext.Component#hideMode}.
      */
     hideMode: 'offsets',
 
-    /**
-     * @property {Boolean}
-     * A Window is always floating.
-     * @private
-     * @readonly
-     */
+    // Windows are always floating.
     floating: true,
 
     itemCls: Ext.baseCSSPrefix + 'window-item',
-
-    initialAlphaNum: /^[a-z0-9]/,
 
     overlapHeader: true,
 
@@ -326,8 +311,46 @@ Ext.define('Ext.window.Window', {
      * `true` in this class to identify an object as an instantiated Window, or subclass thereof.
      */
     isWindow: true,
-    
+
     ariaRole: 'dialog',
+
+    /**
+     * @event activate
+     * Fires after the window has been visually activated via {@link #setActive}.
+     * @param {Ext.window.Window} this
+     */
+
+    /**
+     * @event deactivate
+     * Fires after the window has been visually deactivated via {@link #setActive}.
+     * @param {Ext.window.Window} this
+     */
+
+    /**
+     * @event resize
+     * Fires after the window has been resized.
+     * @param {Ext.window.Window} this
+     * @param {Number} width The window's new width
+     * @param {Number} height The window's new height
+     */
+
+    /**
+     * @event maximize
+     * Fires after the window has been maximized.
+     * @param {Ext.window.Window} this
+     */
+
+    /**
+     * @event minimize
+     * Fires after the window has been minimized.
+     * @param {Ext.window.Window} this
+     */
+
+    /**
+     * @event restore
+     * Fires after the window has been restored to its original size after being maximized.
+     * @param {Ext.window.Window} this
+     */
 
     // @private
     initComponent: function() {
@@ -336,49 +359,6 @@ Ext.define('Ext.window.Window', {
         // true, we only want to lookup framing in a specific instance
         me.frame = false;
         me.callParent();
-        me.addEvents(
-            /**
-             * @event activate
-             * Fires after the window has been visually activated via {@link #setActive}.
-             * @param {Ext.window.Window} this
-             */
-
-            /**
-             * @event deactivate
-             * Fires after the window has been visually deactivated via {@link #setActive}.
-             * @param {Ext.window.Window} this
-             */
-
-            /**
-             * @event resize
-             * Fires after the window has been resized.
-             * @param {Ext.window.Window} this
-             * @param {Number} width The window's new width
-             * @param {Number} height The window's new height
-             */
-            'resize',
-
-            /**
-             * @event maximize
-             * Fires after the window has been maximized.
-             * @param {Ext.window.Window} this
-             */
-            'maximize',
-
-            /**
-             * @event minimize
-             * Fires after the window has been minimized.
-             * @param {Ext.window.Window} this
-             */
-            'minimize',
-
-            /**
-             * @event restore
-             * Fires after the window has been restored to its original size after being maximized.
-             * @param {Ext.window.Window} this
-             */
-            'restore'
-        );
 
         if (me.plain) {
             me.addClsWithUI('plain');
@@ -447,8 +427,16 @@ Ext.define('Ext.window.Window', {
     // @private
     onRender: function(ct, position) {
         var me = this;
+
         me.callParent(arguments);
-        me.focusEl = me.el;
+
+        // Single clicking a header will focus the defaultFocus child
+        if (me.header) {
+            me.header.on({
+                scope: me,
+                click: me.onHeaderClick
+            });
+        }
 
         // Double clicking a header will toggleMaximize
         if (me.maximizable) {
@@ -465,16 +453,16 @@ Ext.define('Ext.window.Window', {
             header = me.header,
             keyMap;
 
-        me.callParent();
-
         // Initialize
         if (me.maximized) {
             me.maximized = false;
             me.maximize();
             if (header) {
-                header.removeCls(header.indicateDragCls)
+                header.removeCls(header.indicateDragCls);
             }
         }
+
+        me.callParent();
 
         if (me.closable) {
             keyMap = me.getKeyMap();
@@ -487,33 +475,12 @@ Ext.define('Ext.window.Window', {
         }
     },
 
-    // Override. Windows are always simple draggable, they do not use Ext.Panel.DDs
-    // The dd property in a Window is always a ComponentDragger
-    initDraggable: function() {
-        /**
-         * @property {Ext.util.ComponentDragger} dd
-         * If this Window is configured {@link #cfg-draggable}, this property will contain an instance of
-         * {@link Ext.util.ComponentDragger} (A subclass of {@link Ext.dd.DragTracker DragTracker}) which handles dragging
-         * the Window's DOM Element, and constraining according to the {@link #constrain} and {@link #constrainHeader} .
-         *
-         * This has implementations of `onBeforeStart`, `onDrag` and `onEnd` which perform the dragging action. If
-         * extra logic is needed at these points, use {@link Ext.Function#createInterceptor createInterceptor} or
-         * {@link Ext.Function#createSequence createSequence} to augment the existing implementations.
-         */
-        this.initSimpleDraggable();
-    },
-
-    initResizable: function(){
-        this.callParent(arguments);
-        if (this.maximized) {
-            this.resizer.disable();
-        }
-    },
-
     // @private
     onEsc: function(k, e) {
+        var mgr = Ext['FocusManager'];
+
         // Only process ESC if the FocusManager is not doing it
-        if (!Ext.FocusManager || !Ext.FocusManager.enabled || Ext.FocusManager.focusedCmp === this) {
+        if (!Ext.enableFocusManager || mgr.focusedCmp === this) {
             e.stopEvent();
             this.close();
         }
@@ -523,7 +490,8 @@ Ext.define('Ext.window.Window', {
     beforeDestroy: function() {
         var me = this;
         if (me.rendered) {
-            delete this.animateTarget;
+            Ext.un('resize', me.onWindowResize, me);
+            delete me.animateTarget;
             me.hide();
             Ext.destroy(
                 me.keyMap
@@ -535,94 +503,36 @@ Ext.define('Ext.window.Window', {
     /**
      * @private
      * Contribute class-specific tools to the header.
-     * Called by Panel's initTools.
+     *
+     * Called by Panel's initTools at initialization time.
+     *
+     * Implementations should jst add new tool config objects to `this.tools`
      */
     addTools: function() {
-        var me = this;
+        var me = this,
+            tools = [],
+            noArgs = [];
 
-        // Call Panel's initTools
+        // Call Panel's addTools
         me.callParent();
 
         if (me.minimizable) {
-            me.addTool({
+            tools.push({
                 type: 'minimize',
-                handler: Ext.Function.bind(me.minimize, me, [])
+                handler: 'minimize',
+                scope:  me
             });
         }
         if (me.maximizable) {
-            me.addTool({
-                type: 'maximize',
-                handler: Ext.Function.bind(me.maximize, me, [])
-            });
-            me.addTool({
-                type: 'restore',
-                handler: Ext.Function.bind(me.restore, me, []),
-                hidden: true
+            tools.push({
+                type: me.maximized ? 'restore' : 'maximize',
+                handler: 'toggleMaximize',
+                scope: me
             });
         }
-    },
 
-    /**
-     * @private
-     * Returns the focus holder element associated with this Window. By default, this is the Window's element.
-     * @returns {Ext.Element/Ext.Component} the focus holding element or Component.
-     */
-    getFocusEl: function() {
-        return this.getDefaultFocus();
-    },
-
-    /**
-     * Gets the configured default focus item.  If a {@link #defaultFocus} is set, it will
-     * receive focus when the Window's <code>focus</code> method is called, otherwise the
-     * Window itself will receive focus.
-     */
-    getDefaultFocus: function() {
-        var me = this,
-            result,
-            defaultComp = me.defaultButton || me.defaultFocus,
-            selector;
-
-        if (defaultComp !== undefined) {
-            // Number is index of Button
-            if (Ext.isNumber(defaultComp)) {
-                result = me.query('button')[defaultComp];
-            }
-            // String is ID or CQ selector
-            else if (Ext.isString(defaultComp)) {
-                selector = defaultComp;
-
-                // Try id/itemId match if selector begins with alphanumeric
-                if (selector.match(me.initialAlphaNum)) {
-                    result = me.down('#' + selector);
-                }
-                // If not found, use as selector
-                if (!result) {
-                    result = me.down(selector);
-                }
-            }
-            // Otherwise, if it's got a focus method, use it
-            else if (defaultComp.focus) {
-                result = defaultComp;
-            }
-        }
-        return result || me.el;
-    },
-
-    /**
-     * @private
-     * Called when a Component's focusEl receives focus.
-     * If there is a valid default focus Component to jump to, focus that,
-     * otherwise continue as usual, focus this Component.
-     */
-    onFocus: function() {
-        var me = this,
-            focusDescendant;
-
-        // If the FocusManager is enabled, then we must noy jumpt to focus the default focus. We must focus the Window
-        if ((Ext.FocusManager && Ext.FocusManager.enabled) || ((focusDescendant = me.getDefaultFocus()) === me)) {
-            me.callParent(arguments);
-        } else {
-            focusDescendant.focus();
+        if (tools.length) {
+            me.addTool(tools);
         }
     },
 
@@ -648,7 +558,7 @@ Ext.define('Ext.window.Window', {
         if (me.hidden) {
             me.fireEvent('close', me);
             if (me.closeAction == 'destroy') {
-                this.destroy();
+                me.destroy();
             }
         } else {
             // close after hiding
@@ -677,16 +587,18 @@ Ext.define('Ext.window.Window', {
         var me = this,
             sizeModel;
 
-        if (me.maximized) {
-            me.fitContainer();
-        } else {
-            sizeModel = me.getSizeModel();
-            if (sizeModel.width.natural || sizeModel.height.natural) {
-                me.updateLayout();
+        // This is called on a timer. Window may have been destroyed in the interval.
+        if (!me.isDestroyed) {
+            if (me.maximized) {
+                me.fitContainer();
+            } else {
+                sizeModel = me.getSizeModel();
+                if (sizeModel.width.natural || sizeModel.height.natural) {
+                    me.updateLayout();
+                }
+                me.doConstrain();
             }
-            me.doConstrain();
         }
-
     },
 
     /**
@@ -712,7 +624,6 @@ Ext.define('Ext.window.Window', {
         if (header && me.maximizable) {
             header.suspendLayouts();
             tools.maximize.hide();
-            tools.restore.hide();
             this.resumeHeaderLayout(true);
         }
         if (me.resizer) {
@@ -730,10 +641,7 @@ Ext.define('Ext.window.Window', {
 
         if (header) {
             header.suspendLayouts();
-            if (me.maximized) {
-                tools.restore.show();
-                changed = true;
-            } else if (me.maximizable) {
+            if (me.maximizable) {
                 tools.maximize.show();
                 changed = true;
             }
@@ -748,7 +656,7 @@ Ext.define('Ext.window.Window', {
     /**
      * Fits the window within its current container and automatically replaces the {@link #maximizable 'maximize' tool
      * button} with the 'restore' tool button. Also see {@link #toggleMaximize}.
-     * @param {Boolean} animate `true` to animate this Window to full size.
+     * @param {Boolean} [animate=false] Pass `true` to animate this Window to full size.
      * @return {Ext.window.Window} this
      */
     maximize: function(animate) {
@@ -766,7 +674,7 @@ Ext.define('Ext.window.Window', {
                     width: Ext.isNumber(width) ? width : null,
                     height: Ext.isNumber(height) ? height : null
                 };
-                
+
                 me.restorePos = me.getPosition(true);
             }
 
@@ -774,12 +682,7 @@ Ext.define('Ext.window.Window', {
             if (header) {
                 header.suspendLayouts();
                 if (tools.maximize) {
-                    tools.maximize.hide();
-                    changed = true;
-                }
-                if (tools.restore) {
-                    tools.restore.show();
-                    changed = true;
+                    tools.maximize.setType('restore');
                 }
                 if (me.collapseTool) {
                     me.collapseTool.hide();
@@ -793,7 +696,7 @@ Ext.define('Ext.window.Window', {
             if (me.dd) {
                 me.dd.disable();
                 if (header) {
-                   header.removeCls(header.indicateDragCls)
+                   header.removeCls(header.indicateDragCls);
                 }
             }
             if (me.resizer) {
@@ -821,6 +724,7 @@ Ext.define('Ext.window.Window', {
     /**
      * Restores a {@link #maximizable maximized} window back to its original size and position prior to being maximized
      * and also replaces the 'restore' tool button with the 'maximize' tool button. Also see {@link #toggleMaximize}.
+     * @param {Boolean} [animate=false] Pass `true` to animate the restore.
      * @return {Ext.window.Window} this
      */
     restore: function(animate) {
@@ -837,13 +741,8 @@ Ext.define('Ext.window.Window', {
             // Manipulate visibility of header tools if there is a header
             if (header) {
                 header.suspendLayouts();
-                if (tools.restore) {
-                    tools.restore.hide();
-                    changed = true;
-                }
                 if (tools.maximize) {
-                    tools.maximize.show();
-                    changed = true;
+                    tools.maximize.setType('maximize');
                 }
                 if (me.collapseTool) {
                     me.collapseTool.show();
@@ -857,7 +756,7 @@ Ext.define('Ext.window.Window', {
             newBox.y = me.restorePos[1];
             me.setBox(newBox, animate = (animate || !!me.animateTarget) ? {
                 callback: function() {
-                    me.el.enableShadow(true);
+                    me.el.enableShadow(null, true);
                     me.maximized = false;
                     me.fireEvent('restore', me);
                 }
@@ -870,7 +769,7 @@ Ext.define('Ext.window.Window', {
             if (me.dd) {
                 me.dd.enable();
                 if (header) {
-                    header.addCls(header.indicateDragCls)
+                    header.addCls(header.indicateDragCls);
                 }
             }
 
@@ -883,7 +782,7 @@ Ext.define('Ext.window.Window', {
             me.syncMonitorWindowResize();
 
             if (!animate) {
-                me.el.enableShadow(true);
+                me.el.enableShadow(null, true);
                 me.maximized = false;
                 me.fireEvent('restore', me);
             }
@@ -909,12 +808,12 @@ Ext.define('Ext.window.Window', {
             if (!currentlyMonitoring) {
                 // but we aren't, so set it up.
                 // Delay so that we jump over any Viewport resize activity
-                Ext.EventManager.onWindowResize(me.onWindowResize, me, {delay: 1});
+                Ext.on('resize', me.onWindowResize, me, {buffer: 1});
                 me._monitoringResize = true;
             }
         } else if (currentlyMonitoring) {
             // we should not be listening, but we are, so tear it down
-            Ext.EventManager.removeResizeListener(me.onWindowResize, me);
+            Ext.un('resize', me.onWindowResize, me);
             me._monitoringResize = false;
         }
     },
@@ -932,6 +831,99 @@ Ext.define('Ext.window.Window', {
         var ghost = this.callParent(arguments);
         ghost.xtype = 'window';
         return ghost;
-    }
+    },
 
+    /**
+     * Gets the configured default focus item.  If a {@link #defaultFocus} is set, it will
+     * receive focus when the Window's `focus` method is called, otherwise the
+     * Window itself will receive focus.
+     */
+    getDefaultFocus: function() {
+        var me = this,
+            result,
+            defaultComp = me.defaultButton || me.defaultFocus,
+            selector;
+
+        if (defaultComp !== undefined) {
+            // Number is index of Button
+            if (Ext.isNumber(defaultComp)) {
+                result = me.query('button')[defaultComp];
+            }
+            // String is ID or CQ selector
+            else if (Ext.isString(defaultComp)) {
+                selector = defaultComp;
+
+                // Try id/itemId match if selector begins with alphanumeric
+                // and is not compound xtype/id selector with # in the middle
+                // (https://sencha.jira.com/browse/EXTJS-14925)
+                if (Ext.validIdRe.test(selector)) {
+                    result = me.down(Ext.makeIdSelector(selector));
+                }
+                // If not found, use as selector
+                if (!result) {
+                    result = me.down(selector);
+                }
+            }
+            // Otherwise, if it's got a focus method, use it
+            else if (defaultComp.focus) {
+                result = defaultComp;
+            }
+        }
+
+        return result;
+    },
+
+    privates: {
+        /**
+         * @private
+         * Returns the focus holder element associated with this Window.
+         * By default, this is the Window's element; this can be overridden
+         * by setting {@link #defaultFocus} property.
+         *
+         * @return {Ext.dom.Element/Ext.Component} the focus holding element or Component.
+         */
+        getFocusEl: function() {
+            var me = this;
+
+            // If the legacy FocusManager is enabled, then we must not focus
+            // the defaultFocus child. We must focus the Window instead, to
+            // let FocusManager do its thing.
+            return Ext.enableFocusManager ? me.el : (me.getDefaultFocus() || me.el);
+        },
+
+        // Override. Windows are always simple draggable, they do not use Ext.Panel.DDs
+        // The dd property in a Window is always a ComponentDragger
+        initDraggable: function() {
+            /**
+             * @property {Ext.util.ComponentDragger} dd
+             * If this Window is configured {@link #cfg-draggable}, this property will contain an instance of
+             * {@link Ext.util.ComponentDragger} (A subclass of {@link Ext.dd.DragTracker DragTracker}) which handles dragging
+             * the Window's DOM Element, and constraining according to the {@link #constrain} and {@link #constrainHeader} .
+             *
+             * This has implementations of `onBeforeStart`, `onDrag` and `onEnd` which perform the dragging action. If
+             * extra logic is needed at these points, use {@link Ext.Function#createInterceptor createInterceptor} or
+             * {@link Ext.Function#createSequence createSequence} to augment the existing implementations.
+             */
+            this.initSimpleDraggable();
+        },
+
+        onHeaderClick: function(header, e) {
+            var delegate;
+
+            if (header.el.contains(e.getTarget())) {
+                delegate = this.getDefaultFocus();
+
+                if (delegate) {
+                    delegate.focus();
+                }
+            }
+        },
+
+        initResizable: function(){
+            this.callParent(arguments);
+            if (this.maximized) {
+                this.resizer.disable();
+            }
+        }
+    }
 });

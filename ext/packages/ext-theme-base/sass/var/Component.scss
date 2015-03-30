@@ -34,13 +34,6 @@ $include-missing-images: true !default;
 $include-ie: true !default;
 
 /**
- * @var {boolean} $include-content-box
- * True to include rules for browsers that do not support the border-box model
- * (IE6 strict and IE7 strict)
- */
-$include-content-box: $include-ie !default;
-
-/**
  * @var {boolean} $include-ff
  * True to include Firefox specific rules
  */
@@ -117,6 +110,12 @@ $image-search-path: '.' !default;
 $include-default-uis: true !default;
 
 /**
+ * @var {boolean}
+ * True to add font-smoothing styles to all components
+ */
+$enable-font-smoothing: true !default;
+
+/**
  * @var {string}
  * The base path relative to the CSS output directory to use for theme resources.  For example
  * if the theme's images live one directory up from the generated CSS output in a directory
@@ -125,3 +124,9 @@ $include-default-uis: true !default;
  * CSS output directory.
  */
 $theme-resource-path: '' !default;
+
+/**
+ * @private
+ * Flag to ensure GridField rules only get set once
+ */
+$grid-cell-field-src-included: false;

@@ -1,20 +1,11 @@
-/*
-This file is part of Ext JS 4.2
+Ext.define('Ext.locale.container.Viewport', {
+    override: 'Ext.container.Viewport',
+    requires: [
+        'Ext.rtl.*'
+    ],
 
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
+    rtl: true
+});
 /**
  * Hebrew Translations
  * By spartacus (from forums) 06-12-2007
@@ -56,8 +47,8 @@ Ext.onReady(function() {
 
     if (Ext.util && Ext.util.Format) {
         Ext.apply(Ext.util.Format, {
-            thousandSeparator: '.',
-            decimalSeparator: ',',
+            thousandSeparator: ',',
+            decimalSeparator: '.',
             currencySign: '\u20aa',
             // Iraeli Shekel
             dateFormat: 'd/m/Y'
@@ -150,6 +141,11 @@ Ext.define("Ext.locale.he.form.field.Date", {
     invalidText: "{1} הוא לא תאריך תקני - חייב להיות בפורמט {0}",
     format: "m/d/y",
     altFormats: "m/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d"
+});
+
+Ext.define("Ext.locale.he.form.field.File", {
+    override: "Ext.form.field.File",
+    buttonText: "עיון ..."
 });
 
 Ext.define("Ext.locale.he.form.field.ComboBox", {
@@ -286,4 +282,3 @@ Ext.define("Ext.locale.he.window.MessageBox", {
 Ext.define("Ext.locale.he.Component", {	
     override: "Ext.Component"
 });
-

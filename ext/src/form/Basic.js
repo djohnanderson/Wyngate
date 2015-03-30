@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * Provides input field management, validation, submission, and form loading services for the collection
  * of {@link Ext.form.field.Field Field} instances within a {@link Ext.container.Container}. It is recommended
@@ -83,8 +66,62 @@ Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 Ext.define('Ext.form.Basic', {
     extend: 'Ext.util.Observable',
     alternateClassName: 'Ext.form.BasicForm',
-    requires: ['Ext.util.MixedCollection', 'Ext.form.action.Load', 'Ext.form.action.Submit',
-               'Ext.window.MessageBox', 'Ext.data.Errors', 'Ext.util.DelayedTask'],
+
+    requires: [
+        'Ext.util.MixedCollection',
+        'Ext.form.action.Load',
+        'Ext.form.action.Submit',
+        'Ext.window.MessageBox',
+        'Ext.data.ErrorCollection',
+        'Ext.util.DelayedTask'
+    ],
+
+    // Not a public API config, this is useful when we're unit testing so we can
+    // turn off the delayed tasks so they fire immediately.
+    taskDelay: 10,
+
+    /**
+     * @event beforeaction
+     * Fires before any action is performed. Return false to cancel the action.
+     * @param {Ext.form.Basic} this
+     * @param {Ext.form.action.Action} action The {@link Ext.form.action.Action} to be performed
+     */
+
+    /**
+     * @event actionfailed
+     * Fires when an action fails.
+     * @param {Ext.form.Basic} this
+     * @param {Ext.form.action.Action} action The {@link Ext.form.action.Action} that failed
+     */
+
+    /**
+     * @event actioncomplete
+     * Fires when an action is completed.
+     * @param {Ext.form.Basic} this
+     * @param {Ext.form.action.Action} action The {@link Ext.form.action.Action} that completed
+     */
+
+    /**
+     * @event validitychange
+     * Fires when the validity of the entire form changes.
+     * @param {Ext.form.Basic} this
+     * @param {Boolean} valid `true` if the form is now valid, `false` if it is now invalid.
+     */
+
+    /**
+     * @event dirtychange
+     * Fires when the dirty state of the entire form changes.
+     * @param {Ext.form.Basic} this
+     * @param {Boolean} dirty `true` if the form is now dirty, `false` if it is no longer dirty.
+     */
+    
+    /**
+     * @event errorchange
+     * Fires when the error of one (or more) of the fields in the form changes.
+     * @param {Ext.form.Basic} this
+     *
+     * @private
+     */
 
     /**
      * Creates new form.
@@ -102,8 +139,18 @@ Ext.define('Ext.form.Basic', {
          */
         me.owner = owner;
         
+        me.fieldMonitors = {
+            validitychange: me.checkValidityDelay,
+            enable: me.checkValidityDelay,
+            disable: me.checkValidityDelay,
+            dirtychange: me.checkDirtyDelay,
+            errorchange: me.checkErrorDelay,
+            scope: me
+        };
+
         me.checkValidityTask = new Ext.util.DelayedTask(me.checkValidity, me);
         me.checkDirtyTask = new Ext.util.DelayedTask(me.checkDirty, me);
+        me.checkErrorTask = new Ext.util.DelayedTask(me.checkError, me);
         
         // We use the monitor here as opposed to event bubbling. The problem with bubbling is it doesn't
         // let us react to items being added/remove at different places in the hierarchy which may have an
@@ -112,7 +159,8 @@ Ext.define('Ext.form.Basic', {
             selector: '[isFormField]:not([excludeForm])',
             scope: me,
             addHandler: me.onFieldAdd,
-            removeHandler: me.onFieldRemove
+            removeHandler: me.onFieldRemove,
+            invalidateHandler: me.onMonitorInvalidate
         });
         me.monitor.bind(owner);
 
@@ -143,43 +191,6 @@ Ext.define('Ext.form.Basic', {
             me.errorReader = Ext.createByAlias('reader.' + reader.type, reader);
         }
 
-        me.addEvents(
-            /**
-             * @event beforeaction
-             * Fires before any action is performed. Return false to cancel the action.
-             * @param {Ext.form.Basic} this
-             * @param {Ext.form.action.Action} action The {@link Ext.form.action.Action} to be performed
-             */
-            'beforeaction',
-            /**
-             * @event actionfailed
-             * Fires when an action fails.
-             * @param {Ext.form.Basic} this
-             * @param {Ext.form.action.Action} action The {@link Ext.form.action.Action} that failed
-             */
-            'actionfailed',
-            /**
-             * @event actioncomplete
-             * Fires when an action is completed.
-             * @param {Ext.form.Basic} this
-             * @param {Ext.form.action.Action} action The {@link Ext.form.action.Action} that completed
-             */
-            'actioncomplete',
-            /**
-             * @event validitychange
-             * Fires when the validity of the entire form changes.
-             * @param {Ext.form.Basic} this
-             * @param {Boolean} valid `true` if the form is now valid, `false` if it is now invalid.
-             */
-            'validitychange',
-            /**
-             * @event dirtychange
-             * Fires when the dirty state of the entire form changes.
-             * @param {Ext.form.Basic} this
-             * @param {Boolean} dirty `true` if the form is now dirty, `false` if it is no longer dirty.
-             */
-            'dirtychange'
-        );
         me.callParent();
     },
 
@@ -285,6 +296,12 @@ Ext.define('Ext.form.Basic', {
      * configuration.
      */
     paramsAsHash: false,
+    
+    /**
+     * @cfg {Object/Array} [metadata]
+     * Optional metadata to pass with the actions when Ext.Direct {@link #api} is used.
+     * See {@link Ext.direct.Manager} for more information.
+     */
 
     //<locale>
     /**
@@ -296,7 +313,7 @@ Ext.define('Ext.form.Basic', {
 
     /**
      * @cfg {Boolean} trackResetOnLoad
-     * If set to true, {@link #reset}() resets to the last loaded or {@link #setValues}() data instead of
+     * If set to true, {@link #method-reset}() resets to the last loaded or {@link #method-setValues}() data instead of
      * when the form was first created.
      */
     trackResetOnLoad: false,
@@ -316,7 +333,7 @@ Ext.define('Ext.form.Basic', {
      */
 
     /**
-     * @cfg {String/HTMLElement/Ext.Element} waitMsgTarget
+     * @cfg {String/HTMLElement/Ext.dom.Element} waitMsgTarget
      * By default wait messages are displayed with Ext.MessageBox.wait. You can target a specific
      * element by passing it or its id or mask the form itself by passing in true.
      */
@@ -340,26 +357,25 @@ Ext.define('Ext.form.Basic', {
         me.clearListeners();
         me.checkValidityTask.cancel();
         me.checkDirtyTask.cancel();
+        me.checkErrorTask.cancel();
+
+        me.checkValidityTask = me.checkDirtyTask = me.checkErrorTask = null;
         me.isDestroyed = true;
     },
     
     onFieldAdd: function(field){
-        var me = this;
-        
-        me.mon(field, 'validitychange', me.checkValidityDelay, me);
-        me.mon(field, 'dirtychange', me.checkDirtyDelay, me);
-        if (me.initialized) {
-            me.checkValidityDelay();
-        }
+        field.on(this.fieldMonitors);
+        this.onMonitorInvalidate();
     },
     
     onFieldRemove: function(field){
-        var me = this;
-        
-        me.mun(field, 'validitychange', me.checkValidityDelay, me);
-        me.mun(field, 'dirtychange', me.checkDirtyDelay, me);
-        if (me.initialized) {
-            me.checkValidityDelay();
+        field.un(this.fieldMonitors);
+        this.onMonitorInvalidate();
+    },
+    
+    onMonitorInvalidate: function() {
+        if (this.initialized) {
+            this.checkValidityDelay();
         }
     },
     
@@ -441,7 +457,29 @@ Ext.define('Ext.form.Basic', {
     },
     
     checkValidityDelay: function(){
-        this.checkValidityTask.delay(10);
+        var timer = this.taskDelay;
+        if (timer) {
+            this.checkValidityTask.delay(timer);
+        } else {
+            this.checkValidity();
+        }
+    },
+
+    checkError: function() {
+        // Currently this event is private, we don't really care
+        // about the summation of the change, rather that something has
+        // changed so we may need to recalculate. In the future if this
+        // is made public, we would need to track the error on a per-field basis.
+        this.fireEvent('errorchange', this);
+    },
+
+    checkErrorDelay: function() {
+        var timer = this.taskDelay;
+        if (timer) {
+            this.checkErrorTask.delay(timer);
+        } else {
+            this.checkError();
+        }
     },
 
     /**
@@ -473,7 +511,11 @@ Ext.define('Ext.form.Basic', {
      *
      * Note that if this BasicForm was configured with {@link Ext.form.Basic#trackResetOnLoad
      * trackResetOnLoad} then the Fields' *original values* are updated when the values are
-     * loaded by {@link Ext.form.Basic#setValues setValues} or {@link #loadRecord}.
+     * loaded by {@link Ext.form.Basic#setValues setValues} or {@link #loadRecord}. This means
+     * that:
+     * 
+     * - {@link #trackResetOnLoad}: `false` -> Will return `true` after calling this method.
+     * - {@link #trackResetOnLoad}: `true` -> Will return `false` after calling this method.
      *
      * @return {Boolean}
      */
@@ -484,7 +526,12 @@ Ext.define('Ext.form.Basic', {
     },
     
     checkDirtyDelay: function(){
-        this.checkDirtyTask.delay(10);
+        var timer = this.taskDelay;
+        if (timer) {
+            this.checkDirtyTask.delay(timer);
+        } else {
+            this.checkDirty();
+        }
     },
 
     /**
@@ -515,11 +562,11 @@ Ext.define('Ext.form.Basic', {
      * but removed after the return data has been gathered.
      *
      * The server response is parsed by the browser to create the document for the IFRAME. If the server is using JSON
-     * to send the return object, then the [Content-Type][2] header must be set to "text/html" in order to tell the
-     * browser to insert the text unchanged into the document body.
+     * to send the return object, then the [Content-Type][2] header should be set to "text/plain" in order to tell the
+     * browser to insert the text unchanged into a '&lt;pre>' element in the document body from which it can be retrieved.
      *
-     * Characters which are significant to an HTML parser must be sent as HTML entities, so encode `"<"` as `"&lt;"`,
-     * `"&"` as `"&amp;"` etc.
+     * If the [Content-Type][2] header is sent as the default, "text/html", then characters which are significant to an HTML
+     * parser must be sent as HTML entities, so encode `"<"` as `"&lt;"`, `"&"` as `"&amp;"` etc.
      *
      * The response text is retrieved from the document, and a fake XMLHttpRequest object is created containing a
      * responseText property in order to conform to the requirements of event handlers and callbacks.
@@ -697,7 +744,7 @@ Ext.define('Ext.form.Basic', {
             return this;
         }
         
-        var fields = record.fields.items,
+        var fields = record.self.fields,
             values = this.getFieldValues(),
             obj = {},
             i = 0,
@@ -721,8 +768,9 @@ Ext.define('Ext.form.Basic', {
 
     /**
      * Loads an {@link Ext.data.Model} into this form by calling {@link #setValues} with the
-     * {@link Ext.data.Model#raw record data}.
-     * See also {@link #trackResetOnLoad}.
+     * {@link Ext.data.Model#getData record data}. The fields in the model are mapped to 
+     * fields in the form by matching either the {@link Ext.form.field.Base#name} or {@link Ext.Component#itemId}.  
+     * See also {@link #trackResetOnLoad}. 
      * @param {Ext.data.Model} record The record to load
      * @return {Ext.form.Basic} this
      */
@@ -830,9 +878,9 @@ Ext.define('Ext.form.Basic', {
      * {@link Ext.form.field.Field#getName name or hiddenName}).
      * @return {Ext.form.field.Field} The first matching field, or `null` if none was found.
      */
-    findField: function(id) {
-        return this.getFields().findBy(function(f) {
-            return f.id === id || f.getName() === id;
+    findField: function (id) {
+        return this.getFields().findBy(function (f) {
+            return f.id === id || f.name === id || f.dataIndex === id;
         });
     },
 
@@ -863,7 +911,7 @@ Ext.define('Ext.form.Basic', {
                 error = errors[e];
                 mark(error.id, error.msg);
             }
-        } else if (errors instanceof Ext.data.Errors) {
+        } else if (errors instanceof Ext.data.ErrorCollection) {
             eLen  = errors.items.length;
             for (e = 0; e < eLen; e++) {
                 error = errors.items[e];
@@ -902,7 +950,7 @@ Ext.define('Ext.form.Basic', {
      */
     setValues: function(values) {
         var me = this,
-            v, vLen, val, field;
+            v, vLen, val;
 
         function setVal(fieldId, val) {
             var field = me.findField(fieldId);

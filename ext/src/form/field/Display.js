@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * A display-only text field which is not validated and not submitted. This is useful for when you want to display a
  * value from a form's {@link Ext.form.Basic#load loaded data} but do not want to allow the user to edit or submit that
@@ -60,12 +43,14 @@ Ext.define('Ext.form.field.Display', {
     fieldSubTpl: [
         '<div id="{id}" role="{role}" {inputAttrTpl}',
         '<tpl if="fieldStyle"> style="{fieldStyle}"</tpl>', 
-        ' class="{fieldCls}">{value}</div>',
+        ' class="{fieldCls} {fieldCls}-{ui}">{value}</div>',
         {
             compiled: true,
             disableFormats: true
         }
     ],
+    
+    focusable: false,
 
     /**
      * @cfg {Boolean} readOnly
@@ -109,12 +94,16 @@ Ext.define('Ext.form.field.Display', {
     initEvents: Ext.emptyFn,
 
     submitValue: false,
+
+    getValue: function() {
+        return this.value;
+    },
     
     valueToRaw: function(value) {
-        if (!value && value !== 0) {
-            return '';
-        } else {
+        if (value || value === 0 || value === false) {
             return value;
+        } else {
+            return '';
         }
     },
     
@@ -122,13 +111,9 @@ Ext.define('Ext.form.field.Display', {
         return false;
     },
 
-    isValid: function() {
-        return true;
-    },
+    isValid: Ext.returnTrue,
 
-    validate: function() {
-        return true;
-    },
+    validate: Ext.returnTrue,
 
     getRawValue: function() {
         return this.rawValue;
@@ -137,7 +122,7 @@ Ext.define('Ext.form.field.Display', {
     setRawValue: function(value) {
         var me = this;
             
-        value = Ext.value(value, '');
+        value = Ext.valueFrom(value, '');
         me.rawValue = value;
         if (me.rendered) {
             me.inputEl.dom.innerHTML = me.getDisplayValue();
@@ -162,7 +147,7 @@ Ext.define('Ext.form.field.Display', {
         return display;
     },
         
-    getSubTplData: function() {
+    getSubTplData: function(fieldData) {
         var ret = this.callParent(arguments);
 
         ret.value = this.getDisplayValue();

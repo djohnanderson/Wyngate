@@ -21,6 +21,24 @@ $font-family: helvetica, arial, verdana, sans-serif !default;
 $font-size: 13px !default;
 
 /**
+ * @var {string/number}
+ * The default font-weight to be used throughout the theme.
+ */
+$font-weight: normal !default;
+
+/**
+ * @var {string/number}
+ * The default font-weight for bold font to be used throughout the theme.
+ */
+$font-weight-bold: bold !default;
+
+/**
+ * @var {string/number} $line-height
+ * The default line-height to be used throughout the theme.
+ */
+$line-height: normal !default;
+
+/**
  * @var {string} $base-gradient
  * The base gradient to be used throughout the theme.
  */

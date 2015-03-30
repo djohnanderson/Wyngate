@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * A Column definition class which renders a numeric data field according to a {@link #format} string.
  *
@@ -34,7 +17,7 @@ Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
  *            { symbol: "sencha", price: 142.08, change: 8.85, volume: 5556351  }
  *        ]
  *     });
- *     
+ *
  *     Ext.create('Ext.grid.Panel', {
  *         title: 'Number Column Demo',
  *         store: Ext.data.StoreManager.lookup('sampleStore'),
@@ -52,8 +35,11 @@ Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 Ext.define('Ext.grid.column.Number', {
     extend: 'Ext.grid.column.Column',
     alias: ['widget.numbercolumn'],
+
     requires: ['Ext.util.Format'],
     alternateClassName: 'Ext.grid.NumberColumn',
+
+    defaultFilterType: 'number',
 
     //<locale>
     /**
@@ -67,13 +53,23 @@ Ext.define('Ext.grid.column.Number', {
      * @cfg {Object} renderer
      * @hide
      */
-    
+
     /**
      * @cfg {Object} scope
      * @hide
      */
 
-    defaultRenderer: function(value){
+    /**
+     * @cfg {Boolean} producesHTML
+     * @inheritdoc
+     */
+    producesHTML: false,
+
+    defaultRenderer: function(value) {
         return Ext.util.Format.number(value, this.format);
+    },
+
+    updater: function(cell, value) {
+        cell.firstChild.innerHTML = Ext.grid.column.Number.prototype.defaultRenderer.call(this, value);
     }
 });

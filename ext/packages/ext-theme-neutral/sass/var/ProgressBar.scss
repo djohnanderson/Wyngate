@@ -74,7 +74,7 @@ $progress-text-font-size: $font-size !default;
  * @var {string}
  * The font-weight of the ProgressBar's text
  */
-$progress-text-font-weight: bold !default;
+$progress-text-font-weight: $font-weight-bold !default;
 
 /**
  * @var {string}

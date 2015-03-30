@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * This layout allows you to easily render content into an HTML table. The total number of columns can be specified, and
  * rowspan and colspan can be used to create complex layouts within the table. This class is intended to be extended or
@@ -85,9 +68,6 @@ Ext.define('Ext.layout.container.Table', {
      * this layout will be rendered into a single row using one column per Component.
      */
 
-    // private
-    monitorResize:false,
-
     type: 'table',
     
     createsInnerCt: true,
@@ -98,7 +78,7 @@ Ext.define('Ext.layout.container.Table', {
 
     /**
      * @cfg {Object} tableAttrs
-     * An object containing properties which are added to the {@link Ext.DomHelper DomHelper} specification used to
+     * An object containing properties which are added to the {@link Ext.dom.Helper DomHelper} specification used to
      * create the layout's `<table>` element. Example:
      *
      *     {
@@ -118,13 +98,13 @@ Ext.define('Ext.layout.container.Table', {
 
     /**
      * @cfg {Object} trAttrs
-     * An object containing properties which are added to the {@link Ext.DomHelper DomHelper} specification used to
+     * An object containing properties which are added to the {@link Ext.dom.Helper DomHelper} specification used to
      * create the layout's `<tr>` elements.
      */
 
     /**
      * @cfg {Object} tdAttrs
-     * An object containing properties which are added to the {@link Ext.DomHelper DomHelper} specification used to
+     * An object containing properties which are added to the {@link Ext.dom.Helper DomHelper} specification used to
      * create the layout's `<td>` elements.
      */
 
@@ -132,8 +112,8 @@ Ext.define('Ext.layout.container.Table', {
         return this.autoSizePolicy;
     },
     
-    initHierarchyState: function (hierarchyStateInner) {    
-        hierarchyStateInner.inShrinkWrapTable  = true;
+    initInheritedState: function (inheritedState, inheritedStateInner) {
+        inheritedStateInner.inShrinkWrapTable  = true;
     },
 
     getLayoutItems: function() {
@@ -299,10 +279,6 @@ Ext.define('Ext.layout.container.Table', {
 
                 Ext.fly(item.el.dom.parentNode).setWidth(item.getWidth());
             }
-        }
-        if (Ext.isIE6 || Ext.isIEQuirks) {
-            // Fixes an issue where the table won't paint
-            this.owner.getTargetEl().child('table').repaint();
         }
     },
 

@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * FieldContainer is a derivation of {@link Ext.container.Container Container} that implements the
  * {@link Ext.form.Labelable Labelable} mixin. This allows it to be configured so that it is rendered with
@@ -123,18 +106,12 @@ Ext.define('Ext.form.FieldContainer', {
     componentLayout: 'fieldcontainer',
 
     componentCls: Ext.baseCSSPrefix + 'form-fieldcontainer',
-    
-    // Used by the layout system, typically the scrolling el is the targetEl, however we need
-    // to let it know we're using something different
-    customOverflowEl: 'containerEl',
-    
+
+    shrinkWrap: true,
+
     childEls: [
         'containerEl'
     ],
-
-    /**
-     * @cfg autoScroll @hide
-     */
 
     /**
      * @cfg {Boolean} combineLabels
@@ -166,7 +143,7 @@ Ext.define('Ext.form.FieldContainer', {
     invalidCls: '',
 
     fieldSubTpl: [
-        '<div id="{id}-containerEl" class="{containerElCls}" role="presentation">',
+        '<div id="{id}-containerEl" data-ref="containerEl" class="{containerElCls}" role="presentation">',
             '{%this.renderContainer(out,values)%}',
         '</div>'
     ],
@@ -182,52 +159,40 @@ Ext.define('Ext.form.FieldContainer', {
         me.initMonitor();
     },
     
-    getOverflowEl: function(){
-        return this.containerEl;    
-    },
-
     /**
      * @protected Called when a {@link Ext.form.Labelable} instance is added to the container's subtree.
-     * @param {Ext.form.Labelable} labelable The instance that was added
+     * @param {Ext.form.Labelable} labelItem The instance that was added
      */
-    onAdd: function(item) {
+    onAdd: function(labelItem) {
         var me = this;
         
         // Fix for https://sencha.jira.com/browse/EXTJSIV-6424
         // In FF, positioning absolutely within a TD positions relative to the TR!
         // So we must add the width of a visible, left-aligned label cell to the x coordinate.
-        if (item.isLabelable && Ext.isGecko && me.layout.type === 'absolute' && !me.hideLabel && me.labelAlign !== 'top') {
-            item.x += (me.labelWidth + me.labelPad);
+        if (labelItem.isLabelable && Ext.isGecko && me.layout.type === 'absolute' && !me.hideLabel && me.labelAlign !== 'top') {
+            labelItem.x += (me.labelWidth + me.labelPad);
         }
         me.callParent(arguments);
-        if (item.isLabelable && me.combineLabels) {
-            item.oldHideLabel = item.hideLabel;
-            item.hideLabel = true;
+        if (labelItem.isLabelable && me.combineLabels) {
+            labelItem.oldHideLabel = labelItem.hideLabel;
+            labelItem.hideLabel = true;
         }
         me.updateLabel();
     },
 
     /**
      * @protected Called when a {@link Ext.form.Labelable} instance is removed from the container's subtree.
-     * @param {Ext.form.Labelable} labelable The instance that was removed
+     * @param {Ext.form.Labelable} labelItem The instance that was removed
      */
-    onRemove: function(item, isDestroying) {
+    onRemove: function(labelItem, isDestroying) {
         var me = this;
         me.callParent(arguments);
         if (!isDestroying) {
-            if (item.isLabelable && me.combineLabels) {
-                item.hideLabel = item.oldHideLabel;
+            if (labelItem.isLabelable && me.combineLabels) {
+                labelItem.hideLabel = labelItem.oldHideLabel;
             }
             me.updateLabel();
         }   
-    },
-
-    initRenderTpl: function() {
-        var me = this;
-        if (!me.hasOwnProperty('renderTpl')) {
-            me.renderTpl = me.getTpl('labelableRenderTpl');
-        }
-        return me.callParent();
     },
 
     initRenderData: function() {
@@ -262,7 +227,7 @@ Ext.define('Ext.form.FieldContainer', {
         return ret;
     },
 
-    getSubTplMarkup: function() {
+    getSubTplMarkup: function(fieldData) {
         var me = this,
             tpl = me.getTpl('fieldSubTpl'),
             html;
@@ -271,7 +236,7 @@ Ext.define('Ext.form.FieldContainer', {
             me.setupRenderTpl(tpl);
         }
 
-        html = tpl.apply(me.getSubTplData());
+        html = tpl.apply(me.getSubTplData(fieldData));
         return html;
     },
 
@@ -292,7 +257,7 @@ Ext.define('Ext.form.FieldContainer', {
      * @private Fired when the error message of any field within the container changes, and updates the
      * combined error message to match.
      */
-    onFieldErrorChange: function(field, activeError) {
+    onFieldErrorChange: function() {
         if (this.combineErrors) {
             var me = this,
                 oldError = me.getActiveError(),
@@ -308,7 +273,7 @@ Ext.define('Ext.form.FieldContainer', {
             }
 
             if (oldError !== me.getActiveError()) {
-                me.doComponentLayout();
+                me.updateLayout();
             }
         }
     },
@@ -345,13 +310,23 @@ Ext.define('Ext.form.FieldContainer', {
         return errors;
     },
 
-    getTargetEl: function() {
-        return this.containerEl;
-    },
+    privates: {
+        applyTargetCls: function(targetCls) {
+            var containerElCls = this.containerElCls;
 
-    applyTargetCls: function(targetCls) {
-        var containerElCls = this.containerElCls;
+            this.containerElCls = containerElCls ? containerElCls + ' ' + targetCls : targetCls;
+        },
 
-        this.containerElCls = containerElCls ? containerElCls + ' ' + targetCls : targetCls;
+        getTargetEl: function() {
+            return this.containerEl;
+        },
+
+        initRenderTpl: function() {
+            var me = this;
+            if (!me.hasOwnProperty('renderTpl')) {
+                me.renderTpl = me.getTpl('labelableRenderTpl');
+            }
+            return me.callParent();
+        }
     }
 });

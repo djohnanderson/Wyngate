@@ -1040,4 +1040,5 @@ return {
             return true;
         }
     } // statics
-}});
+};
+});

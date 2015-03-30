@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * A mixin for {@link Ext.container.Container} components that are likely to have form fields in their
  * items subtree. Adds the following capabilities:
@@ -32,10 +15,21 @@ Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
  * @docauthor Jason Johnston <jason@sencha.com>
  */
 Ext.define('Ext.form.FieldAncestor', {
-    
+    extend: 'Ext.Mixin',
+
     requires: [
         'Ext.container.Monitor'
     ],
+
+    mixinConfig: {
+        id: 'fieldAncestor',
+        after: {
+            initInheritedState: 'initFieldInheritedState'
+        },
+        before: {
+            destroy: 'onBeforeDestroy'
+        }
+    },
 
     /**
      * @cfg {Object} fieldDefaults
@@ -78,18 +72,23 @@ Ext.define('Ext.form.FieldAncestor', {
      * the labelWidth:150 from its own config.
      */
 
+    /**
+     * @event fieldvaliditychange
+     * Fires when the validity state of any one of the {@link Ext.form.field.Field} instances within this
+     * container changes.
+     * @param {Ext.form.FieldAncestor} this
+     * @param {Ext.form.Labelable} field The Field instance whose validity changed
+     * @param {String} isValid The field's new validity state
+     */
 
-    xhooks: {
-        initHierarchyState: function(hierarchyState) {
-            if (this.fieldDefaults) {
-                if (hierarchyState.fieldDefaults) {
-                    hierarchyState.fieldDefaults = Ext.apply(Ext.Object.chain(hierarchyState.fieldDefaults), this.fieldDefaults);
-                } else {
-                    hierarchyState.fieldDefaults = this.fieldDefaults;
-                }
-            }
-        }
-    },
+    /**
+     * @event fielderrorchange
+     * Fires when the active error message is changed for any one of the {@link Ext.form.Labelable} instances
+     * within this container.
+     * @param {Ext.form.FieldAncestor} this
+     * @param {Ext.form.Labelable} field The Labelable instance whose active error was changed
+     * @param {String} error The active error message
+     */
 
     /**
      * Initializes the FieldAncestor's state; this must be called from the initComponent method of any components
@@ -98,28 +97,6 @@ Ext.define('Ext.form.FieldAncestor', {
      */
     initFieldAncestor: function() {
         var me = this;
-
-        me.addEvents(
-            /**
-             * @event fieldvaliditychange
-             * Fires when the validity state of any one of the {@link Ext.form.field.Field} instances within this
-             * container changes.
-             * @param {Ext.form.FieldAncestor} this
-             * @param {Ext.form.Labelable} The Field instance whose validity changed
-             * @param {String} isValid The field's new validity state
-             */
-            'fieldvaliditychange',
-
-            /**
-             * @event fielderrorchange
-             * Fires when the active error message is changed for any one of the {@link Ext.form.Labelable} instances
-             * within this container.
-             * @param {Ext.form.FieldAncestor} this
-             * @param {Ext.form.Labelable} The Labelable instance whose active error was changed
-             * @param {String} error The active error message
-             */
-            'fielderrorchange'
-        );
 
         // We use the monitor here as opposed to event bubbling. The problem with bubbling is it doesn't
         // let us react to items being added/remove at different places in the hierarchy which may have an
@@ -136,7 +113,21 @@ Ext.define('Ext.form.FieldAncestor', {
     initMonitor: function() {
         this.monitor.bind(this);    
     },
-    
+
+    initFieldInheritedState: function (inheritedState) {
+        var inheritedFieldDefaults = inheritedState.fieldDefaults,
+            fieldDefaults = this.fieldDefaults;
+
+        if (fieldDefaults) {
+            if (inheritedFieldDefaults) {
+                inheritedState.fieldDefaults =
+                        Ext.apply(Ext.Object.chain(inheritedFieldDefaults), fieldDefaults);
+            } else {
+                inheritedState.fieldDefaults = fieldDefaults;
+            }
+        }
+    },
+
     onChildFieldAdd: function(field) {
         var me = this;
         me.mon(field, 'errorchange', me.handleFieldErrorChange, me);
@@ -195,10 +186,9 @@ Ext.define('Ext.form.FieldAncestor', {
      * @protected
      */
     onFieldErrorChange: Ext.emptyFn,
-    
-    beforeDestroy: function(){
+
+    onBeforeDestroy: function(){
         this.monitor.unbind();
-        this.callParent();
     }
 
 });

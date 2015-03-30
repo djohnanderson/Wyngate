@@ -81,7 +81,7 @@ $panel-body-font-size: $font-size !default;
  * @var {string}
  * The default font-weight of the Panel body
  */
-$panel-body-font-weight: normal !default;
+$panel-body-font-weight: $font-weight !default;
 
 /**
  * @var {string}
@@ -117,7 +117,7 @@ $panel-header-border-style: solid !default;
  * @var {number/list}
  * The padding of Panel Headers
  */
-$panel-header-padding: 4px 5px !default;
+$panel-header-padding: 5px !default;
 
 /**
  * @var {number}
@@ -135,7 +135,7 @@ $panel-header-line-height: 16px !default;
  * @var {string}
  * The font-weight of Panel Headers
  */
-$panel-header-font-weight: bold !default;
+$panel-header-font-weight: $font-weight-bold !default;
 
 /**
  * @var {string}
@@ -154,6 +154,12 @@ $panel-header-text-transform: none !default;
  * The padding of the Panel Header's text element
  */
 $panel-header-text-padding: 0 !default;
+
+/**
+ * @var {number/list}
+ * The margin of the Panel Header's text element
+ */
+$panel-header-text-margin: 0 !default;
 
 /**
  * @var {string/list}
@@ -228,6 +234,14 @@ $panel-header-glyph-color: $panel-header-color !default;
  * The opacity of the Panel Header glyph icon
  */
 $panel-header-glyph-opacity: .5 !default;
+
+/**
+ * @var {boolean}
+ * True to adjust the padding of borderless panel headers so that their height is the same
+ * as the height of bordered panels.  This is helpful when borderless and bordered panels
+ * are used side-by-side, as it maintains a consistent vertical alignment.
+ */
+$panel-header-noborder-adjust: true !default;
 
 /**
  * @var {color}
@@ -370,3 +384,12 @@ $include-panel-default-ui: $include-default-uis !default;
  * True to include the "default-framed" panel UI
  */
 $include-panel-default-framed-ui: $include-default-uis !default;
+
+/**
+ * @var {boolean}
+ * True to ignore the frame padding.  By default, the frame mixin adds extra padding when
+ * border radius is larger than border width.  This is intended to prevent the content
+ * from colliding with the rounded corners of the frame.  Set this to true to prevent
+ * the panel frame from adding this extra padding.
+ */
+$panel-ignore-frame-padding: false !default;

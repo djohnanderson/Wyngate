@@ -15,9 +15,9 @@
         @if $include-ext-grid-column-action {
             .#{$prefix}form-action-col-field {
                 padding:
-                    max(ceil(($grid-editor-height - $grid-actioncolumn-icon-height) / 2), 0)
+                    max(ceil(($grid-cell-field-height - $grid-actioncolumn-icon-height) / 2), 0)
                     max($grid-actioncolumn-horizontal-padding - ceil($grid-row-editor-field-spacing / 2), 0)
-                    max(floor(($grid-editor-height - $grid-actioncolumn-icon-height) / 2), 0)
+                    max(floor(($grid-cell-field-height - $grid-actioncolumn-icon-height) / 2), 0)
                     max($grid-actioncolumn-horizontal-padding - floor($grid-row-editor-field-spacing / 2), 0);
             }
         }

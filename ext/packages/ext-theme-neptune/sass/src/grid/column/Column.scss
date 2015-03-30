@@ -4,7 +4,7 @@ $grid-header-trigger-border:
     $grid-header-border-color;
 
 .#{$prefix}column-header-trigger {
-    background-image: theme-background-image("grid/hd-pop");
+    background: $grid-header-over-background-color theme-background-image("grid/hd-pop") no-repeat center center;
     border-left: $grid-header-trigger-border;
 }
 

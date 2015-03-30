@@ -1,21 +1,5 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
+ * @class Ext.form.action.DirectLoad
  * Provides {@link Ext.direct.Manager} support for loading form data.
  *
  * This example illustrates usage of Ext.direct.Direct to **load** a form through Ext.Direct.
@@ -88,37 +72,38 @@ Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
  */
 Ext.define('Ext.form.action.DirectLoad', {
     extend:'Ext.form.action.Load',
-    requires: ['Ext.direct.Manager'],
     alternateClassName: 'Ext.form.Action.DirectLoad',
     alias: 'formaction.directload',
+    
+    requires: [
+        'Ext.direct.Manager'
+    ],
+    
+    mixins: [
+        'Ext.form.action.DirectAction'
+    ],
 
     type: 'directload',
 
     run: function() {
         var me = this,
             form = me.form,
-            api = form.api,
-            fn = api.load,
-            method, args;
-
-        if (typeof fn !== 'function') {
-            //<debug>
-            var fnName = fn;
-            //</debug>
-            
-            api.load = fn = Ext.direct.Manager.parseMethod(fn);
-
-            //<debug>
-            if (!Ext.isFunction(fn)) {
-                Ext.Error.raise('Cannot resolve Ext.Direct API method ' + fnName);
-            }
-            //</debug>
-        }
+            metadata = me.metadata || form.metadata,
+            timeout = me.timeout || form.timeout,
+            args, fn;
         
-        method = fn.directCfg.method;
-        args = method.getArgs(me.getParams(), form.paramOrder, form.paramsAsHash);
-            
-        args.push(me.onComplete, me);
+        fn = me.resolveMethod('load');
+        
+        args = fn.directCfg.method.getArgs({
+            params: me.getParams(),
+            paramOrder: form.paramOrder,
+            paramsAsHash: form.paramsAsHash,
+            options: timeout != null ? { timeout: timeout * 1000 } : null,
+            metadata: metadata,
+            callback: me.onComplete,
+            scope: me
+        });
+        
         fn.apply(window, args);
     },
 
@@ -129,7 +114,7 @@ Ext.define('Ext.form.action.DirectLoad', {
         return (this.result = result);
     },
 
-    onComplete: function(data, response) {
+    onComplete: function(data) {
         if (data) {
             this.onSuccess(data);
         } else {

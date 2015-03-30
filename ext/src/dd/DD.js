@@ -1,21 +1,4 @@
 /*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
-/*
  * This is a derivative of the similarly named class in the YUI Library.
  * The original license:
  * Copyright (c) 2006, Yahoo! Inc. All rights reserved.
@@ -150,7 +133,7 @@ Ext.define('Ext.dd.DD', {
             this.lastPageX = iPageX;
             this.lastPageY = iPageY;
         } else {
-            var aCoord = Ext.Element.getXY(this.getEl());
+            var aCoord = Ext.fly(this.getEl()).getXY();
             this.lastPageX = aCoord[0];
             this.lastPageY = aCoord[1];
         }
@@ -169,9 +152,9 @@ Ext.define('Ext.dd.DD', {
 
         if (this.scroll) {
             // The client height
-            var clientH = Ext.Element.getViewHeight(),
+            var clientH = Ext.Element.getViewportHeight(),
                 // The client width
-                clientW = Ext.Element.getViewWidth(),
+                clientW = Ext.Element.getViewportWidth(),
                 // The amt scrolled down
                 st = this.DDMInstance.getScrollTop(),
                 // The amt scrolled right
@@ -275,7 +258,8 @@ Ext.define('Ext.dd.DD', {
      */
     b4MouseDown: function(e) {
         // this.resetConstraints();
-        this.autoOffset(e.getPageX(), e.getPageY());
+        var xy = e.getXY();
+        this.autoOffset(xy[0], xy[1]);
     },
 
     /**
@@ -283,7 +267,8 @@ Ext.define('Ext.dd.DD', {
      * Ext.dd.DragDrop.
      */
     b4Drag: function(e) {
-        this.setDragElPos(e.getPageX(), e.getPageY());
+        var xy = e.getXY();
+        this.setDragElPos(xy[0], xy[1]);
     },
 
     toString: function() {

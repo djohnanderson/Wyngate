@@ -1,37 +1,17 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * This class is intended to be extended or created via the {@link Ext.container.Container#layout layout}
  * configuration property.  See {@link Ext.container.Container#layout} for additional details.
  */
 Ext.define('Ext.layout.container.Container', {
-
-    /* Begin Definitions */
-
-    alias: ['layout.container'],
-
     extend: 'Ext.layout.Layout',
+
+    alias: 'layout.container',
 
     alternateClassName: 'Ext.layout.ContainerLayout',
 
-    mixins: {
-        elementCt: 'Ext.util.ElementContainer'
-    },
+    mixins: [
+        'Ext.util.ElementContainer'
+    ],
 
     requires: [
         'Ext.XTemplate'
@@ -63,7 +43,7 @@ Ext.define('Ext.layout.container.Container', {
     beginExpand: Ext.emptyFn,
 
     /**
-     * An object which contains boolean properties specifying which properties are to be 
+     * An object which contains boolean properties specifying which properties are to be
      * animated upon flush of child Component ContextItems. For example, Accordion would
      * have:
      *
@@ -76,13 +56,11 @@ Ext.define('Ext.layout.container.Container', {
      */
     animatePolicy: null,
 
-    childEls: [
-        /**
-         * @property {Ext.Element} overflowPadderEl
-         * The element used to correct body padding during overflow.
-         */
-        'overflowPadderEl'
-    ],
+    /**
+     * @private
+     * tracks the number of child items that do not use "liquid" CSS layout
+     */
+    activeItemCount: 0,
 
     renderTpl: [
         '{%this.renderBody(out,values)%}'
@@ -106,7 +84,7 @@ Ext.define('Ext.layout.container.Container', {
     /**
      * In addition to work done by our base classes, containers benefit from some extra
      * cached data. The following properties are added to the ownerContext:
-     * 
+     *
      *  - visibleItems: the result of {@link #getVisibleItems}
      *  - childItems: the ContextItem[] for each visible item
      *  - targetContext: the ContextItem for the {@link #getTarget} element
@@ -135,24 +113,40 @@ Ext.define('Ext.layout.container.Container', {
     },
 
     cacheChildItems: function (ownerContext) {
-        var context = ownerContext.context,
-            childItems = [],
-            items = this.getVisibleItems(),
-            length = items.length,
-            i;
+        var me = this,
+            context, childItems, items, length, i;
 
-        ownerContext.childItems = childItems;
-        ownerContext.visibleItems = items;
+        // if we neither read nor set the size of our items, we can skip creation of
+        // the childItems array
+        if (me.needsItemSize || me.setsItemSize) {
+            context = ownerContext.context;
+            childItems = ownerContext.childItems = [];
+            items = ownerContext.visibleItems = me.getVisibleItems();
+            length = items.length;
 
-        for (i = 0; i < length; ++i) {
-            childItems.push(context.getCmp(items[i]));
+            for (i = 0; i < length; ++i) {
+                childItems.push(context.getCmp(items[i]));
+            }
         }
     },
 
     cacheElements: function () {
         var owner = this.owner;
 
-        this.applyChildEls(owner.el, owner.id); // from ElementContainer mixin
+        this.attachChildEls(owner.el, owner); // from ElementContainer mixin
+    },
+
+    calculate: function(ownerContext) {
+        var props = ownerContext.props,
+            el = ownerContext.el;
+
+        if (ownerContext.widthModel.shrinkWrap && isNaN(props.width)) {
+            ownerContext.setContentWidth(el.getWidth());
+        }
+
+        if (ownerContext.heightModel.shrinkWrap && isNaN(props.height)) {
+            ownerContext.setContentHeight(el.getHeight());
+        }
     },
 
     /**
@@ -163,17 +157,27 @@ Ext.define('Ext.layout.container.Container', {
         var me = this,
             itemCls = me.itemCls,
             ownerItemCls = me.owner.itemCls,
+            needsCopy,
             addClasses;
 
         // Effectively callParent but without the function overhead
         item.ownerLayout = me;
 
         if (itemCls) {
-            // itemCls can be a single clas or an array
-            addClasses = typeof itemCls === 'string' ? [itemCls] : itemCls;
+            // itemCls can be a single class or an array
+            if (typeof itemCls === 'string') {
+                addClasses = [itemCls];
+            } else {
+                addClasses = itemCls;
+                needsCopy = !!addClasses;
+            }
         }
         if (ownerItemCls) {
-            addClasses = Ext.Array.push(addClasses||[], ownerItemCls);
+            // Add some extra logic so we don't clone the array unnecessarily
+            if (needsCopy) {
+                addClasses = Ext.Array.clone(addClasses);
+            }
+            addClasses = Ext.Array.push(addClasses || [], ownerItemCls);
         }
         if (addClasses) {
             item.addCls(addClasses);
@@ -222,12 +226,6 @@ Ext.define('Ext.layout.container.Container', {
         target = me.getRenderTarget();
         items = me.getLayoutItems();
 
-        //<debug>
-        if (me.targetCls && !me.getTarget().hasCls(me.targetCls)) {
-            Ext.log.warn('targetCls is missing. This may mean that getTargetEl() is being overridden but not applyTargetCls(). ' + me.owner.id);
-        }
-        //</debug>
-
         me.finishRenderItems(target, items);
     },
 
@@ -236,6 +234,12 @@ Ext.define('Ext.layout.container.Container', {
      * Called for every layout in the layout context after all the layouts have been finally flushed
      */
     notifyOwner: function() {
+        //<debug>
+        if (!this._hasTargetWarning && this.targetCls && !this.getTarget().hasCls(this.targetCls)) {
+            this._hasTargetWarning = true;
+            Ext.log.warn('targetCls is missing. This may mean that getTargetEl() is being overridden but not applyTargetCls(). ' + this.owner.id);
+        }
+        //</debug>
         this.owner.afterLayout(this);
     },
 
@@ -253,7 +257,7 @@ Ext.define('Ext.layout.container.Container', {
      */
     getContainerSize : function(ownerContext, inDom) {
         // Subtle But Important:
-        // 
+        //
         // We don't want to call getProp/hasProp et.al. unless we in fact need that value
         // for our results! If we call it and don't need it, the layout manager will think
         // we depend on it and will schedule us again should it change.
@@ -309,7 +313,7 @@ Ext.define('Ext.layout.container.Container', {
             gotHeight: gotHeight
         };
     },
-    
+
     // This method is used to offset the DOM position when checking
     // whether the element is a certain child of the target. This is
     // required in cases where the extra elements prepended to the target
@@ -379,7 +383,7 @@ Ext.define('Ext.layout.container.Container', {
      *
      * May be overridden in layout managers which implement an inner element.
      *
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     getRenderTarget: function() {
         return this.owner.getTargetEl();
@@ -390,7 +394,7 @@ Ext.define('Ext.layout.container.Container', {
      *
      * May be overridden in Component layout managers which implement a {@link #getRenderTarget component render target} which must only
      * contain child components.
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     getElementTarget: function() {
         return this.getRenderTarget();
@@ -414,20 +418,20 @@ Ext.define('Ext.layout.container.Container', {
             items = this.owner.items,
             itemsGen,
             renderCfgs = {};
-        
+
         do {
             itemsGen = items.generation;
             result = this.getItemsRenderTree(this.getLayoutItems(), renderCfgs);
         } while (items.generation !== itemsGen);
         return result;
     },
-    
+
     renderChildren: function () {
         var me = this,
             ownerItems = me.owner.items,
             target = me.getRenderTarget(),
             itemsGen, items;
-            
+
         // During the render phase, new items may be added. Specifically, a panel will
         // create a placeholder component during render if required, so we need to catch
         // it here so we can render it.
@@ -469,7 +473,7 @@ Ext.define('Ext.layout.container.Container', {
 
     /**
      * Returns the owner component's resize element.
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     getTarget: function() {
         return this.owner.getTargetEl();
@@ -481,7 +485,7 @@ Ext.define('Ext.layout.container.Container', {
      * @return {Array} All matching items
      */
     getVisibleItems: function() {
-        var target   = this.getRenderTarget(),
+        var target = this.getRenderTarget(),
             items = this.getLayoutItems(),
             ln = items.length,
             visibleItems = [],
@@ -489,7 +493,7 @@ Ext.define('Ext.layout.container.Container', {
 
         for (i = 0; i < ln; i++) {
             item = items[i];
-            if (item.rendered && this.isValidParent(item, target, i) && item.hidden !== true) {
+            if (item.rendered && this.isValidParent(item, target, i) && item.hidden !== true && !item.floated) {
                 visibleItems.push(item);
             }
         }
@@ -497,16 +501,47 @@ Ext.define('Ext.layout.container.Container', {
         return visibleItems;
     },
 
-    setupRenderTpl: function (renderTpl) {
-        var me = this;
-
-        renderTpl.renderBody = me.doRenderBody;
-        renderTpl.renderContainer = me.doRenderContainer;
-        renderTpl.renderItems = me.doRenderItems;
+    getMoveAfterIndex: function (after) {
+        return this.owner.items.indexOf(after) + 1;
     },
-    
+
+    moveItemBefore: function (item, before) {
+        var owner = this.owner,
+            items = owner.items,
+            toIndex;
+
+        if (item === before) {
+            return item;
+        }
+
+        toIndex = before ?
+            items.indexOf(before) :
+            items.length;
+
+        return owner.insert(toIndex, item);
+    },
+
+    setupRenderTpl: function (renderTpl) {
+        renderTpl.renderBody = this.doRenderBody;
+        renderTpl.renderContainer = this.doRenderContainer;
+        renderTpl.renderItems = this.doRenderItems;
+    },
+
     getContentTarget: function(){
         return this.owner.getDefaultContentTarget();
-    }
+    },
 
+    onAdd: function (item) {
+        if (!item.liquidLayout) {
+            ++this.activeItemCount;
+        }
+        this.callParent([item]);
+    },
+
+    onRemove: function(item) {
+        if (!item.liquidLayout) {
+            --this.activeItemCount;
+        }
+        this.callParent([item]);
+    }
 });

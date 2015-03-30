@@ -1,49 +1,149 @@
+@function button-base-inner-border-color($background-color, $border-color) {
+    @if $background-color == transparent or is-null($background-color) {
+        @return transparent;
+    } @else {
+        @return lighten($background-color, 10%);
+    }
+}
+
 @function button-default-border-color-over($border-color) {
-    @return lighten($border-color, 10%);
+    @if $border-color == transparent or is-null($border-color) {
+        @return transparent;
+    } @else {
+        @return lighten($border-color, 10%);
+    }
 }
 
 @function button-default-border-color-focus($border-color) {
-    @return lighten($border-color, 10%);
+    @if $border-color == transparent or is-null($border-color) {
+        @return transparent;
+    } @else {
+        @return lighten($border-color, 10%);
+    }
 }
 
 @function button-default-border-color-pressed($border-color) {
-    @return darken($border-color, 10%);
+    @if $border-color == transparent or is-null($border-color) {
+        @return transparent;
+    } @else {
+        @return darken($border-color, 10%);
+    }
+}
+
+@function button-default-border-color-focus-over($border-color) {
+    @if $border-color == transparent or is-null($border-color) {
+        @return transparent;
+    } @else {
+        @return lighten($border-color, 10%);
+    }
+}
+
+@function button-default-border-color-focus-pressed($border-color) {
+    @if $border-color == transparent or is-null($border-color) {
+        @return transparent;
+    } @else {
+        @return darken($border-color, 10%);
+    }
 }
 
 @function button-default-border-color-disabled($border-color) {
-    @return desaturate(lighten($border-color, 30%), 30%);
+    @if $border-color == transparent or is-null($border-color) {
+        @return transparent;
+    } @else {
+        @return desaturate(lighten($border-color, 30%), 30%);
+    }
 }
 
 @function button-default-background-color-over($background-color) {
-    @return lighten($background-color, 10%);
+    @if $background-color == transparent or is-null($background-color) {
+        @return transparent;
+    } @else {
+        @return lighten($background-color, 10%);
+    }
 }
 
 @function button-default-background-color-focus($background-color) {
-    @return lighten($background-color, 10%);
+    @if $background-color == transparent or is-null($background-color) {
+        @return transparent;
+    } @else {
+        @return lighten($background-color, 10%);
+    }
 }
 
 @function button-default-background-color-pressed($background-color) {
-    @return darken($background-color, 10%);
+    @if $background-color == transparent or is-null($background-color) {
+        @return transparent;
+    } @else {
+        @return darken($background-color, 10%);
+    }
 }
 
 @function button-default-background-color-disabled($background-color) {
-    @return desaturate(lighten($background-color, 30%), 30%);
+    @if $background-color == transparent or is-null($background-color) {
+        @return transparent;
+    } @else {
+        @return desaturate(lighten($background-color, 30%), 30%);
+    }
+}
+
+@function button-default-inner-border-color($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-default-inner-border-color-over($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-default-inner-border-color-focus($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-default-inner-border-color-pressed($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-default-inner-border-color-focus-over($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-default-inner-border-color-focus-pressed($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-default-inner-border-color-disabled($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
 }
 
 @function button-default-color-over($color) {
-    @return $color;
+    @if $color == transparent or is-null($color) {
+        @return transparent;
+    } @else {
+        @return $color;
+    }
 }
 
 @function button-default-color-focus($color) {
-    @return $color;
+    @if $color == transparent or is-null($color) {
+        @return transparent;
+    } @else {
+        @return $color;
+    }
 }
 
 @function button-default-color-pressed($color) {
-    @return $color
+    @if $color == transparent or is-null($color) {
+        @return transparent;
+    } @else {
+        @return $color
+    }
 }
 
 @function button-default-color-disabled($color) {
-    @return $color;
+    @if $color == transparent or is-null($color) {
+        @return transparent;
+    } @else {
+        @return $color;
+    }
 }
 
 @function button-toolbar-border-color-over($border-color) {
@@ -78,6 +178,34 @@
     @return button-default-background-color-disabled($background-color);
 }
 
+@function button-toolbar-inner-border-color($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-toolbar-inner-border-color-over($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-toolbar-inner-border-color-focus($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-toolbar-inner-border-color-pressed($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-toolbar-inner-border-color-focus-over($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-toolbar-inner-border-color-focus-pressed($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function button-toolbar-inner-border-color-disabled($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
 @function button-toolbar-color-over($color) {
     @return button-default-color-over($color);
 }
@@ -92,4 +220,32 @@
 
 @function button-toolbar-color-disabled($color) {
     @return button-default-color-disabled($color);
+}
+
+@function tab-inner-border-color($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function tab-inner-border-color-over($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function tab-inner-border-color-focus($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function tab-inner-border-color-active($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function tab-inner-border-color-focus-over($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function tab-inner-border-color-focus-active($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
+}
+
+@function tab-inner-border-color-disabled($background-color, $border-color) {
+    @return button-base-inner-border-color($background-color, $border-color);
 }

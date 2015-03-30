@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * Spanish/Latin American Translation by genius551v 04-08-2007
  * Revised by efege, 2007-04-15.
@@ -57,6 +40,19 @@ Ext.onReady(function() {
             if (day == 3) return "Mié";
             if (day == 6) return "Sáb";
             return Ext.Date.dayNames[day].substring(0, 3);
+        };
+
+        Ext.Date.formatCodes.a = "(this.getHours() < 12 ? 'a.m.' : 'p.m.')";
+        Ext.Date.formatCodes.A = "(this.getHours() < 12 ? 'A.M.' : 'P.M.')";
+
+        // This will match am or a.m.
+        Ext.Date.parseCodes.a = Ext.Date.parseCodes.A = {
+            g:1,
+            c:"if (/(a\\.?m\\.?)/i.test(results[{0}])) {\n"
+                + "if (!h || h == 12) { h = 0; }\n"
+                + "} else { if (!h || h < 12) { h = (h || 0) + 12; }}",
+            s:"(A\\.?M\\.?|P\\.?M\\.?|a\\.?m\\.?|p\\.?m\\.?)",
+            calcAtEnd: true
         };
 
         Ext.Date.parseCodes.S.s = "(?:st|nd|rd|th)";

@@ -1,5 +1,9 @@
 /**
- * Creates a visual theme for a Panel
+ * Creates a visual theme for a Panel.
+ *
+ * **Note:** When using `frame: true`, this mixin call creates a UI property with the name and a "-framed" suffix.
+ *
+ * For example, Panel's UI will be set to "highlight-framed" if `frame:true`.
  *
  * @param {string} $ui
  * The name of the UI being created. Can not included spaces or special punctuation
@@ -57,6 +61,9 @@
  * @param {number/list} [$ui-header-text-padding=$panel-header-text-padding]
  * The padding of the Header's text element
  *
+ * @param {number/list} [$ui-header-text-margin=$panel-header-text-margin]
+ * The margin of the Header's text element
+ *
  * @param {string} [$ui-header-text-transform=$panel-header-text-transform]
  * The text-transform of the Header
  *
@@ -80,6 +87,11 @@
  *
  * @param {number} [$ui-header-glyph-opacity=$panel-header-glyph-opacity]
  * The opacity of the Header glyph icon
+ *
+ * @param {number} [$ui-header-noborder-adjust=$panel-header-noborder-adjust]
+ * True to adjust the padding of borderless panel headers so that their height is the same
+ * as the height of bordered panels.  This is helpful when borderless and bordered panels
+ * are used side-by-side, as it maintains a consistent vertical alignment.
  *
  * @param {number} [$ui-tool-spacing=$panel-tool-spacing]
  * The space between the Panel {@link Ext.panel.Tool Tools}
@@ -139,6 +151,12 @@
  * {@link #border} config. Only applicable when `$ui-include-border-management-rules` is
  * `true`.
  *
+ * @param {boolean} [$ui-ignore-frame-padding=$panel-ignore-frame-padding]
+ * True to ignore the frame padding.  By default, the frame mixin adds extra padding when
+ * border radius is larger than border width.  This is intended to prevent the content
+ * from colliding with the rounded corners of the frame.  Set this to true to prevent
+ * the panel frame from adding this extra padding.
+ *
  * @member Ext.panel.Panel
  */
 @mixin extjs-panel-ui(
@@ -162,6 +180,7 @@
     $ui-header-inner-border-color: $panel-header-inner-border-color,
     $ui-header-inner-border-width: $panel-header-inner-border-width,
     $ui-header-text-padding: $panel-header-text-padding,
+    $ui-header-text-margin: $panel-header-text-margin,
     $ui-header-text-transform: $panel-header-text-transform,
     $ui-header-padding: $panel-header-padding,
     $ui-header-icon-width: $panel-header-icon-width,
@@ -170,6 +189,7 @@
     $ui-header-icon-background-position: $panel-header-icon-background-position,
     $ui-header-glyph-color: $panel-header-glyph-color,
     $ui-header-glyph-opacity: $panel-header-glyph-opacity,
+    $ui-header-noborder-adjust: $panel-header-noborder-adjust,
 
     $ui-tool-spacing: $panel-tool-spacing,
     $ui-tool-background-image: $panel-tool-background-image,
@@ -190,8 +210,9 @@
 
     // See the docs above
     $ui-include-border-management-rules: $panel-include-border-management-rules,
-    $ui-wrap-border-color: $panel-wrap-border-color,
-    $ui-wrap-border-width: $panel-wrap-border-width,
+    $ui-wrap-border-color: null,
+    $ui-wrap-border-width: null,
+    $ui-ignore-frame-padding: $panel-ignore-frame-padding,
 
     // deprecated - use $ui instead
     $ui-label: null
@@ -202,6 +223,22 @@
             $ui: $ui-label;
         } @else {
             @warn "#{error('$ui is required')}";
+        }
+    }
+
+    @if is-null($ui-wrap-border-color) {
+        @if $ui == 'default-framed' {
+            $ui-wrap-border-color: $panel-wrap-border-color;
+        } @else {
+            $ui-wrap-border-color: $ui-border-color;
+        }
+    }
+
+    @if is-null($ui-wrap-border-width) {
+        @if $ui == 'default-framed' {
+            $ui-wrap-border-width: $panel-wrap-border-width;
+        } @else {
+            $ui-wrap-border-width: $ui-border-width;
         }
     }
 
@@ -235,7 +272,7 @@
             }
             @if is-null($ui-header-background-gradient) {
                 // EXTJSIV-8846: partially transparent png images do not display correctly
-                // in winXP/IE8m when the image element has a transparent background.
+                // in winXP/IE8 when the image element has a transparent background.
                 // to fix this, we give the element the same background-color as the header.
                 background-color: $ui-header-background-color;
             }
@@ -244,41 +281,198 @@
 
     .#{$prefix}panel-header-#{$ui}-horizontal {
         padding: $ui-header-padding;
+
+        @if $include-ext-tab-bar {
+            .#{$prefix}panel-header-#{$ui}-tab-bar {
+                margin-top: -(top($ui-header-padding));
+                margin-bottom: -(bottom($ui-header-padding));
+            }
+        }
     }
 
-    .#{$prefix}panel-header-#{$ui}-horizontal-noborder {
-        padding: $ui-header-padding-noborder;
+    @if $ui-header-noborder-adjust {
+        .#{$prefix}panel-header-#{$ui}-horizontal.#{$prefix}header-noborder {
+            padding: $ui-header-padding-noborder;
+
+            @if $include-ext-tab-bar {
+                .#{$prefix}panel-header-#{$ui}-tab-bar {
+                    margin-top: -(top($ui-header-padding-noborder));
+                    margin-bottom: -(bottom($ui-header-padding-noborder));
+                }
+            }
+        }
     }
 
     .#{$prefix}panel-header-#{$ui}-vertical {
         padding: rotate90($ui-header-padding);
+
+        @if $include-ext-tab-bar {
+            .#{$prefix}panel-header-#{$ui}-tab-bar {
+                margin-right: -(top($ui-header-padding));
+                margin-left: -(bottom($ui-header-padding));
+            }
+        }
     }
 
-    .#{$prefix}panel-header-#{$ui}-vertical-noborder {
-        padding: rotate90($ui-header-padding-noborder);
+    @if $ui-header-noborder-adjust {
+        .#{$prefix}panel-header-#{$ui}-vertical.#{$prefix}header-noborder {
+            padding: rotate90($ui-header-padding-noborder);
+
+            @if $include-ext-tab-bar {
+                .#{$prefix}panel-header-#{$ui}-tab-bar {
+                    margin-right: -(top($ui-header-padding-noborder));
+                    margin-left: -(bottom($ui-header-padding-noborder));
+                }
+            }
+        }
     }
 
     @if $include-rtl {
         .#{$prefix}rtl.#{$prefix}panel-header-#{$ui}-vertical {
             padding: rotate270($ui-header-padding);
+
+            @if $include-ext-tab-bar {
+                .#{$prefix}panel-header-#{$ui}-tab-bar {
+                    margin-left: -(top($ui-header-padding));
+                    margin-right: -(bottom($ui-header-padding));
+                }
+            }
         }
 
-        .#{$prefix}rtl.#{$prefix}panel-header-#{$ui}-vertical-noborder {
-            padding: rotate270($ui-header-padding-noborder);
+        @if $ui-header-noborder-adjust {
+            .#{$prefix}rtl.#{$prefix}panel-header-#{$ui}-vertical.#{$prefix}header-noborder {
+                padding: rotate270($ui-header-padding-noborder);
+
+                @if $include-ext-tab-bar {
+                    .#{$prefix}panel-header-#{$ui}-tab-bar {
+                        margin-left: -(top($ui-header-padding-noborder));
+                        margin-right: -(bottom($ui-header-padding-noborder));
+                    }
+                }
+            }
         }
     }
 
-
-    // header text
-    .#{$prefix}panel-header-text-container-#{$ui} {
+    .#{$prefix}panel-header-title-#{$ui} {
         @if not is-null($ui-header-color) { color: $ui-header-color; }
 
         @if not is-null($ui-header-font-size) {   font-size: $ui-header-font-size; }
         @if not is-null($ui-header-font-weight) { font-weight: $ui-header-font-weight; }
         @if not is-null($ui-header-font-family) { font-family: $ui-header-font-family; }
         @if not is-null($ui-header-line-height) { line-height: $ui-header-line-height; }
-        padding: $ui-header-text-padding;
-        text-transform: $ui-header-text-transform;
+
+        @if $ui-header-text-margin != 0 {
+            margin: $ui-header-text-margin;
+        }
+
+        > {
+            .#{$prefix}title-text-#{$ui} {
+                text-transform: $ui-header-text-transform;
+                padding: $ui-header-text-padding;
+
+                @if $ext-trial {
+                    &:after {
+                        content: 'Ext JS Trial';
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        // since IE8 does not support opacity on pseudo elements we simulate it by
+                        // mixing the text color with the background color
+                        color: mix($ui-header-color, $ui-header-background-color, 40%);
+                    }
+
+                    @if $include-rtl {
+                        &.#{$prefix}rtl:after {
+                            right: auto;
+                            left: 0;
+                        }
+                    }
+                }
+                @if $ext-beta-trial {
+                    &:after {
+                        content: 'Ext JS Beta';
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        // since IE8 does not support opacity on pseudo elements we simulate it by
+                        // mixing the text color with the background color
+                        color: mix($ui-header-color, $ui-header-background-color, 40%);
+                    }
+
+                    @if $include-rtl {
+                        &.#{$prefix}rtl:after {
+                            right: auto;
+                            left: 0;
+                        }
+                    }
+                }
+            }
+
+            .#{$prefix}title-icon-wrap-#{$ui} {
+                &.#{$prefix}title-icon-top {
+                    height: $ui-header-icon-height + $ui-header-icon-spacing;
+                    padding-bottom: $ui-header-icon-spacing;
+                }
+
+                &.#{$prefix}title-icon-right {
+                    width: $ui-header-icon-width + $ui-header-icon-spacing;
+                    padding-left: $ui-header-icon-spacing;
+
+                    @if $include-rtl {
+                        &.#{$prefix}rtl {
+                            padding-left: 0;
+                            padding-right: $ui-header-icon-spacing;
+                        }
+                    }
+                }
+
+                &.#{$prefix}title-icon-bottom {
+                    height: $ui-header-icon-height + $ui-header-icon-spacing;
+                    padding-top: $ui-header-icon-spacing;
+                }
+
+                &.#{$prefix}title-icon-left {
+                    width: $ui-header-icon-width + $ui-header-icon-spacing;
+                    padding-right: $ui-header-icon-spacing;
+
+                    @if $include-rtl {
+                        &.#{$prefix}rtl {
+                            padding-right: 0;
+                            padding-left: $ui-header-icon-spacing;
+                        }
+                    }
+                }
+
+                > .#{$prefix}title-icon-#{$ui} {
+                    width: $ui-header-icon-width;
+                    height: $ui-header-icon-height;
+                    background-position: $ui-header-icon-background-position;
+                }
+
+                > .#{$prefix}title-glyph {
+                    color: $ui-header-glyph-color;
+                    font-size: $ui-header-icon-height;
+                    line-height: $ui-header-icon-height;
+
+                    @if $ui-header-glyph-opacity != 1 {
+                        // do not use the opacity mixin because we do not want IE's filter version of
+                        // opacity to be included.  We emulate the opacity setting in IE8m by mixing
+                        // the icon color into the background color. (see below)
+                        opacity: $ui-header-glyph-opacity;
+                    }
+                    // In IE8 and below when a glyph contains partially transparent pixels, we
+                    // can't apply an opacity filter to the glyph element, because IE8m will render
+                    // the partially transparent pixels of the glyph as black. To work around this,
+                    // we emulate the approximate color that the glyph would have if it had opacity
+                    // applied by mixing the glyph color with the header's background-color.
+                    @if $include-ie {
+                        .#{$prefix}ie8 & {
+                            color: mix($ui-header-glyph-color, $ui-header-background-color, $ui-header-glyph-opacity * 100);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // body
@@ -300,10 +494,11 @@
         @include x-frame(
             $cls: 'panel',
             $ui: '#{$ui}',
-            $border-radius   : $ui-border-radius,
-            $border-width    : $ui-border-width,
-            $padding         : $ui-padding,
-            $background-color: $ui-body-background-color
+            $border-radius: $ui-border-radius,
+            $border-width: $ui-border-width,
+            $padding: $ui-padding,
+            $background-color: $ui-body-background-color,
+            $ignore-frame-padding: $ui-ignore-frame-padding
         );
 
         @include x-frame(
@@ -442,6 +637,7 @@
                 }
             }
         }
+
     } @else {
         @if not is-null($ui-header-background-color) {
             .#{$prefix}panel-header-#{$ui} {
@@ -473,12 +669,12 @@
 
                     .#{$prefix}#{$panel-header-ui}-bottom {
                         background: slicer-background-image($panel-header-ui + '-bottom',
-                                            '#{$panel-header-path}-bottom-bg');
+                                            '#{$panel-header-path}-bottom-bg') bottom left;
                     }
 
                     .#{$prefix}#{$panel-header-ui}-left {
                         background: slicer-background-image($panel-header-ui + '-left',
-                                            '#{$panel-header-path}-left-bg') top right;
+                                            '#{$panel-header-path}-left-bg') top left;
                     }
 
                     .#{$prefix}#{$panel-header-ui}-right {
@@ -490,11 +686,11 @@
                         .#{$prefix}rtl {
                             &.#{$prefix}#{$panel-header-ui}-left {
                                 background: slicer-background-image-rtl($panel-header-ui + '-left',
-                                            '#{$panel-header-path}-left-bg-rtl');
+                                            '#{$panel-header-path}-left-bg-rtl') top right;
                             }
                             &.#{$prefix}#{$panel-header-ui}-right {
                                 background: slicer-background-image-rtl($panel-header-ui + '-right',
-                                            '#{$panel-header-path}-right-bg-rtl');
+                                            '#{$panel-header-path}-right-bg-rtl') top left;
                             }
                         }
                     }
@@ -523,25 +719,15 @@
             }
         }
 
-        $stretch: slicer-background-stretch($panel-header-ui + '-top', bottom);
-        $stretch: slicer-background-stretch($panel-header-ui + '-right', left);
-        $stretch: slicer-background-stretch($panel-header-ui + '-bottom', bottom);
-        $stretch: slicer-background-stretch($panel-header-ui + '-left', left);
+        $stretch: slicer-background-stretch($panel-header-ui + '-top', $ui-background-stretch-top);
+        $stretch: slicer-background-stretch($panel-header-ui + '-right', $ui-background-stretch-right);
+        $stretch: slicer-background-stretch($panel-header-ui + '-bottom', $ui-background-stretch-bottom);
+        $stretch: slicer-background-stretch($panel-header-ui + '-left', $ui-background-stretch-left);
 
         @include x-slicer($panel-header-ui + '-top');
         @include x-slicer($panel-header-ui + '-bottom');
         @include x-slicer($panel-header-ui + '-left');
         @include x-slicer($panel-header-ui + '-right');
-    }
-
-    .#{$prefix}panel-header-#{$ui}-vertical .#{$prefix}panel-header-text-container {
-        @include rotate-element($angle: 90, $background-color: $ui-header-background-color);
-    }
-
-    @if $include-rtl {
-        .#{$prefix}panel-header-#{$ui}-vertical .#{$prefix}rtl.#{$prefix}panel-header-text-container {
-            @include rotate-element($angle: 270, $background-color: $ui-header-background-color);
-        }
     }
 
     @if $ui-header-inner-border-width != 0 {
@@ -559,81 +745,6 @@
 
         .#{$prefix}panel-header-#{$ui}-left {
             @include inner-border(rotate270($ui-header-inner-border-width), $ui-header-inner-border-color);
-        }
-    }
-
-    .#{$prefix}panel-header-#{$ui} {
-        .#{$prefix}panel-header-icon {
-            width: $ui-header-icon-width;
-            height: $ui-header-icon-height;
-            background-position: $ui-header-icon-background-position;
-        }
-        .#{$prefix}panel-header-glyph {
-            color: $ui-header-glyph-color;
-            font-size: $ui-header-icon-height;
-            line-height: $ui-header-icon-height;
-
-            @if $ui-header-glyph-opacity != 1 {
-                // do not use the opacity mixin because we do not want IE's filter version of
-                // opacity to be included.  We emulate the opacity setting in IE8m by mixing
-                // the icon color into the background color. (see below)
-                opacity: $ui-header-glyph-opacity;
-            }
-            // In IE8 and below when a glyph contains partially transparent pixels, we 
-            // can't apply an opacity filter to the glyph element, because IE8m will render
-            // the partially transparent pixels of the glyph as black. To work around this,
-            // we emulate the approximate color that the glyph would have if it had opacity
-            // applied by mixing the glyph color with the header's background-color.
-            @if $include-ie {
-                .#{$prefix}ie8m & {
-                    color: mix($ui-header-glyph-color, $ui-header-background-color, $ui-header-glyph-opacity * 100);
-                }
-            }
-        }
-    }
-
-    $ui-header-icon-margin: 0 $panel-header-icon-spacing 0 0;
-    .#{$prefix}panel-header-#{$ui}-horizontal {
-        .#{$prefix}panel-header-icon-before-title {
-            margin: $ui-header-icon-margin;
-        }
-
-        @if $include-rtl {
-            .#{$prefix}rtl.#{$prefix}panel-header-icon-before-title {
-                margin: rtl($ui-header-icon-margin);
-            }
-        }
-
-        .#{$prefix}panel-header-icon-after-title {
-            margin: rtl($ui-header-icon-margin);
-        }
-
-        @if $include-rtl {
-            .#{$prefix}rtl.#{$prefix}panel-header-icon-after-title {
-                margin: $ui-header-icon-margin;
-            }
-        }
-    }
-
-    .#{$prefix}panel-header-#{$ui}-vertical {
-        .#{$prefix}panel-header-icon-before-title {
-            margin: rotate90($ui-header-icon-margin);
-        }
-
-        @if $include-rtl {
-            .#{$prefix}rtl.#{$prefix}panel-header-icon-before-title {
-                margin: rotate270(rtl($ui-header-icon-margin));
-            }
-        }
-
-        .#{$prefix}panel-header-icon-after-title {
-            margin: rotate90(rtl($ui-header-icon-margin));
-        }
-
-        @if $include-rtl {
-            .#{$prefix}rtl.#{$prefix}panel-header-icon-after-title {
-                margin: rotate270($ui-header-icon-margin);
-            }
         }
     }
 

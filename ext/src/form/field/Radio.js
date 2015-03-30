@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * @docauthor Robert Dougan <rob@sencha.com>
  *
@@ -201,12 +184,6 @@ Ext.define('Ext.form.field.Radio', {
     isRadio: true,
 
     /**
-     * @cfg {String} [focusCls='x-form-radio-focus']
-     * The CSS class to use when the radio field receives focus
-     */
-    focusCls: 'form-radio-focus',
-
-    /**
      * @cfg {String} uncheckedValue
      * @private
      */
@@ -214,6 +191,10 @@ Ext.define('Ext.form.field.Radio', {
     // private
     inputType: 'radio',
     ariaRole: 'radio',
+    
+    // Radios are naturally focusable but they need to participate in RadioGroups
+    // which are focusable containers; we set tabIndex to >= 0 here to make that work
+    tabIndex: 0,
     
     formId: null,
 
@@ -229,7 +210,7 @@ Ext.define('Ext.form.field.Radio', {
     /**
      * @private Handle click on the radio button
      */
-    onBoxClick: function(e) {
+    onBoxClick: function() {
         var me = this;
         if (!me.disabled && !me.readOnly) {
             this.setValue(true);
@@ -247,14 +228,14 @@ Ext.define('Ext.form.field.Radio', {
      * @param {String/Boolean} value Checked value, or the value of the sibling radio button to check.
      * @return {Ext.form.field.Radio} this
      */
-    setValue: function(v) {
+    setValue: function(value) {
         var me = this,
-            active;
+            container, active;
 
-        if (Ext.isBoolean(v)) {
+        if (Ext.isBoolean(value)) {
             me.callParent(arguments);
         } else {
-            active = me.getManager().getWithValue(me.name, v, me.getFormId()).getAt(0);
+            active = me.getManager().getWithValue(me.name, value, me.getFormId()).getAt(0);
             if (active) {
                 active.setValue(true);
             }

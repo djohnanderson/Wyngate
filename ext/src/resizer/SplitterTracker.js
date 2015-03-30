@@ -1,20 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-Commercial Usage
-Licensees holding valid commercial licenses may use this file in accordance with the Commercial
-Software License Agreement provided with the Software or, alternatively, in accordance with the
-terms contained in a written agreement between you and Sencha.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
-*/
 /**
  * Private utility class for Ext.Splitter.
  * @private
@@ -27,7 +10,8 @@ Ext.define('Ext.resizer.SplitterTracker', {
     overlayCls: Ext.baseCSSPrefix + 'resizable-overlay',
 
     createDragOverlay: function () {
-        var overlay;
+        var overlay,
+            El = Ext.dom.Element;
 
         overlay = this.overlay =  Ext.getBody().createChild({
             role: 'presentation',
@@ -36,7 +20,7 @@ Ext.define('Ext.resizer.SplitterTracker', {
         });
 
         overlay.unselectable();
-        overlay.setSize(Ext.Element.getViewWidth(true), Ext.Element.getViewHeight(true));
+        overlay.setSize(El.getDocumentWidth(), El.getDocumentHeight());
         overlay.show();
     },
 
@@ -64,7 +48,7 @@ Ext.define('Ext.resizer.SplitterTracker', {
             return false;
         }
 
-        if (collapseEl && target === me.getSplitter().collapseEl.dom) {
+        if (collapseEl && target === collapseEl.dom) {
             return false;
         }
 
@@ -211,7 +195,7 @@ Ext.define('Ext.resizer.SplitterTracker', {
         var me = this;
 
         if (me.overlay) {
-             me.overlay.remove();
+             me.overlay.destroy();
              delete me.overlay;
         }
 
