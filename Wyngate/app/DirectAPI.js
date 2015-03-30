@@ -2,7 +2,6 @@ Ext.define('Wyngate.DirectAPI', {
     requires: ['Ext.direct.*']
 }, function() {
     var Loader = Ext.Loader,
-        wasLoading = Loader.isLoading,
         location = window.location,
         suffixLength, URL, suffix;
 
@@ -21,14 +20,12 @@ Ext.define('Wyngate.DirectAPI', {
                 URL = URL.slice(0, -(suffixLength - 1));
             break;
     }
+
     Loader.loadScript({
         url: URL + 'directapi',
         onLoad: function() {
-            Loader.isLoading = wasLoading;
-
             // Add provider. Name must match settings on serverside
             Ext.direct.Manager.addProvider(ExtRemote.REMOTING_API);
-
         }
     });
 });
