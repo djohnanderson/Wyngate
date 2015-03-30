@@ -17,7 +17,7 @@ var DXBackend = {
         var user = request.session.user,
         enableDates;
 
-        if (user && (user !== 'guest')) {
+        if (user === 'john') {
             enableDates = merge(true, defaultEnableDates);
             jsonfile.readFile(enableDatesFile, function(error, object) {
                 if (!error)
@@ -37,7 +37,7 @@ var DXBackend = {
 
         try {
             jsonfile.readFile(enableDatesFile, function(error, object) {
-                if (request.session.user === 'guest' && !error)
+                if (request.session.user !== 'john' && !error)
                     merge (enableDates, object);
                     
                 fs.readdir(resourcesDirectory, function (error, list) {
