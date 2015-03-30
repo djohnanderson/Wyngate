@@ -64,12 +64,10 @@ Ext.define('Wyngate.view.HTML5VideoPanel', {
                 me.video = me.body.createChild(config);
 
                 //resize the video once the size is know.
-                me.video.on({
-                    loadedmetadata: function() {
-                        me.ownerCt.doLayout();
-                        this.currentTime = 30;
-                    }
-                });
+                me.video.dom.onloadedmetadata = function() {
+                    me.ownerCt.updateLayout();
+                    this.currentTime = 20;
+                };
             }
         });
 

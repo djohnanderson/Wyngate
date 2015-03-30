@@ -21,9 +21,14 @@ Ext.define('Wyngate.DirectAPI', {
                 URL = URL.slice(0, -(suffixLength - 1));
             break;
     }
-    Loader.loadScriptFile(URL + 'directapi', Ext.emptyFn, Ext.emptyFn, null, true);
-    Loader.isLoading = wasLoading;
+    Loader.loadScript({
+        url: URL + 'directapi',
+        onLoad: function() {
+            Loader.isLoading = wasLoading;
 
-    // Add provider. Name must match settings on serverside
-    Ext.direct.Manager.addProvider(ExtRemote.REMOTING_API);
+            // Add provider. Name must match settings on serverside
+            Ext.direct.Manager.addProvider(ExtRemote.REMOTING_API);
+
+        }
+    });
 });

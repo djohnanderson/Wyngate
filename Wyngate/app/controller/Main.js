@@ -139,11 +139,11 @@ Ext.define('Wyngate.controller.Main', {
         
         me.control(config);
         new Ext.util.KeyMap(Ext.get(document), [{
-            key: Ext.EventObject.S,
+            key: Ext.event.Event.S,
             ctrl: true,
             fn: Ext.bind(me.setEnableDates, me, ['start'])
         }, {
-            key: Ext.EventObject.E,
+            key: Ext.event.Event.E,
             ctrl: true,
             fn: Ext.bind(me.setEnableDates, me, ['end'])
         }]);

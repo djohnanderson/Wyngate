@@ -23,7 +23,7 @@ Ext.define('Wyngate.view.Login', {
         xtype: 'form',
         itemId: 'loginForm',
         frame: true,
-        border: true,
+        padding: '6',
         layout: {
             align: 'middle',
             pack: 'center',
