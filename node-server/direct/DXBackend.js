@@ -116,6 +116,7 @@ var DXBackend = {
                 success: false,
                 message: 'Login unsuccessful'
             };
+            request.session.user = "";
         }
         callback(result);
     }
