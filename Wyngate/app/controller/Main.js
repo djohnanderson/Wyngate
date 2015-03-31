@@ -91,10 +91,8 @@ Ext.define('Wyngate.controller.Main', {
     },
     
     setEnableDates: function (end) {
-        var provider = Ext.state.Manager.getProvider(),
-            params = {};
+        var params = {};
 
-        console.log (provider.get ('user'));
         params[end] = Ext.Date.format(this.currentDate, 'Y-m-d');
         ExtRemote.DXBackend.setEnableDates(params);
     },
