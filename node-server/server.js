@@ -39,14 +39,13 @@ if(ServerConfig.enableCompression){
 }
 
 if(ServerConfig.enableSessions){
-    var session = require('express-session'),
-        cookieParser = require('cookie-parser');
+    var cookieSession = require('cookie-session');
 
-    app.use(cookieParser());
-    app.use(session({ 
-        secret: ServerConfig.sessionSecret,
-        store: new session.MemoryStore})
-    );
+    app.set('trust proxy', 1) // trust first proxy 
+    
+    app.use(cookieSession({
+        keys: [ServerConfig.sessionSecret1, ServerConfig.sessionSecret2]
+    }));
 }
 
 app.use(express.static(path.join(__dirname, ServerConfig.webRoot)));
