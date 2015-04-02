@@ -3,7 +3,7 @@
 import os, re, sys, shutil, argparse, tempfile
 from datetime import datetime
 
-parser = argparse.ArgumentParser(description='Make a video from JPEGs in a folder')
+parser = argparse.ArgumentParser(description='Find bad JPEGs in a folder')
 parser.add_argument('-f','--folder', help='Folder of JPEGs', default="")
 args = parser.parse_args()
 
