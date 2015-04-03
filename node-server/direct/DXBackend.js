@@ -37,9 +37,11 @@ var DXBackend = {
 
         try {
             jsonfile.readFile(enableDatesFile, function(error, object) {
+                console.log ('getVideoDates user: ', request.session.user, ' error: ', error);
                 if (request.session.user !== 'john' && !error)
                     merge (enableDates, object);
-                    
+                console.log ('start: ', enableDates.start, ' end: ', enableDates.end);
+
                 fs.readdir(resourcesDirectory, function (error, list) {
                     if (error)
                         throw error;
@@ -111,12 +113,14 @@ var DXBackend = {
                 message: 'Login successful'
             };
             request.session.user = username;
+            console.log ('successful login: ', request.session.user);
         } else {
             result = {
                 success: false,
                 message: 'Login unsuccessful'
             };
             request.session.user = "";
+            console.log ('insuccessful login: ', request.session.user);
         }
         callback(result);
     }
