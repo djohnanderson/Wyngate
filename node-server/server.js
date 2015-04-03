@@ -41,7 +41,8 @@ if(ServerConfig.enableCompression){
 if(ServerConfig.enableSessions){
     var cookieSession = require('cookie-session');
 
-    app.set('trust proxy', 1) // trust first proxy 
+    if (environment === 'production')
+        app.set('trust proxy', 1) // trust first proxy 
     
     app.use(cookieSession({
         keys: [ServerConfig.sessionSecret1, ServerConfig.sessionSecret2]
