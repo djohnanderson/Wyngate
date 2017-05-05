@@ -102,8 +102,8 @@ if (protocol === 'http') {
     });
 } else {
     var options = {
-      key: fs.readFileSync('/home/john/domains/djohnanderson.com/server.key'),
-      cert: fs.readFileSync('/home/john/domains/djohnanderson.com/server.crt')
+      key: fs.readFileSync(ServerConfig.SSLKey),
+      cert: fs.readFileSync(ServerConfig.SSLCertificate)
     };
 
     https.createServer(options, app).listen(port, function(){
