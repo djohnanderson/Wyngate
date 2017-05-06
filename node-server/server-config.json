@@ -23,7 +23,7 @@
         "protocol": "http",
         "logger": "dev",
         "enableCompression": true,
-        "webRoot": "../",
+        "webRoot": "/public",
         "enableSessions": true,
         "sessionSecret1": "4nNqwQu3iJpqUn",
         "sessionSecret2": "iUVZTHawckkY97",
