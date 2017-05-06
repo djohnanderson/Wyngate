@@ -38,7 +38,7 @@ var DXBackend = {
         try {
             jsonfile.readFile(enableDatesFile, function(error, object) {
                 console.log ('getVideoDates user: ', request.session.user, ' error: ', error);
-                if (request.session.user !== 'john' && !error)
+                if (request.session.user === 'guest' && !error)
                     merge (enableDates, object);
                 console.log ('start: ', enableDates.start, ' end: ', enableDates.end);
 
@@ -102,6 +102,7 @@ var DXBackend = {
         var username = params.username,
             password = params.password,
             users = {'john': 'sha1$0676e27f$1$90d919a8de6432587a5d43fa6c476dff2515e9b0',
+                     'heide': 'sha1$27d169c1$1$b55ee95c04eef87eaf850752d2f3f8c4dde16729',
                      'guest': 'sha1$4d537d41$1$49789d069628fc02f77c998c34d176ed509e8d13'},
             hash, result;
 
