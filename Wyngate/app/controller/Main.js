@@ -66,7 +66,8 @@ Ext.define('Wyngate.controller.Main', {
                                 maxDate = Ext.Date.parse(result.maxDate, 'm/d/Y');
                                 datePicker.setMinDate(Ext.Date.parse(result.minDate, 'm/d/Y'));
                                 datePicker.setMaxDate(maxDate);
-                                datePicker.setDisabledDates(result.disabledDates);
+                                if (result.disabledDates.length)
+                                    datePicker.setDisabledDates(result.disabledDates);
                                 datePicker.setValue(maxDate);
                                 me.currentDate = maxDate;
                                 cardLayout = me.getCardPanel().getLayout();
