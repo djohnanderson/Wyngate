@@ -77,7 +77,7 @@ var DXBackend = {
                                                 disabledDates.push(date.format('MM/DD/YYYY'));
                                         }
                                     }
-                                    callback({
+                                    callback(null, {
                                         success: true,
                                         params: params,
                                         minDate: minDate,
@@ -90,7 +90,7 @@ var DXBackend = {
                 });
             });
         } catch (error) {
-            callback({
+            callback(null, {
                 success: false,
                 msg: error.message,
                 params: params
@@ -123,7 +123,7 @@ var DXBackend = {
             request.session.user = "";
             console.log ('insuccessful login: ', request.session.user);
         }
-        callback(result);
+        callback(null, result);
     }
 };
 

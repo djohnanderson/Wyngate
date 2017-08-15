@@ -14,7 +14,7 @@ var express = require('express'),
     morgan = require('morgan'),
     errorhandler = require('errorhandler'),
     bodyparser = require('body-parser'),
-    ServerConfig, ExtDirectConfig, environment, httpPort, httpsPort, store;
+    ServerConfig, extdirectApi, extdirectRouter, ExtDirectConfig, environment, httpPort, httpsPort, store;
 
 var app = express();
 
@@ -30,7 +30,9 @@ app.set('protocol', ServerConfig.protocol || 'http');
 
 app.use(morgan(ServerConfig.logger));
 app.use(errorhandler());
-app.use(bodyparser());
+
+// parse application/x-www-form-urlencoded
+app.use(bodyparser.json());
 
 if(ServerConfig.enableCompression){
     var compress = require('compression');
@@ -70,28 +72,33 @@ if(ServerConfig.enableCORS){
     });
 }
 
+extdirectApi = extdirect.initApi(ExtDirectConfig);
+extdirectRouter = extdirect.initRouter(ExtDirectConfig);
+
 //GET method returns API
-app.get(ExtDirectConfig.apiPath, function(request, response) {
+app.get(ExtDirectConfig.apiUrl, function(request, response) {
     try{
-        var api = extdirect.getAPI(ExtDirectConfig);
-        response.writeHead(200, {'Content-Type': 'application/json'});
-        response.end(api);
+        extdirectApi.getAPI(
+            function(api){
+                response.writeHead(200, {'Content-Type': 'application/json'});
+                response.end(api);
+            }, request, response
+        );
     }catch(e){
         console.log(e);
     }
 });
 
 // Ignoring any GET requests on class path
-app.get(ExtDirectConfig.classPath, function(request, response) {
+app.get(ExtDirectConfig.classRouteUrl, function(request, response) {
     response.writeHead(200, {'Content-Type': 'application/json'});
     response.end(JSON.stringify({success:false, msg:'Unsupported method. Use POST instead.'}));
 });
 
 // POST request process route and calls class
-app.route(ExtDirectConfig.classPath)
-    .post(function(request, response) {
-        extdirect.processRoute(request, response, ExtDirectConfig);
-    });
+app.post(ExtDirectConfig.classRouteUrl, function(request, response) {
+    extdirectRouter.processRoute(request, response);
+});
 
 port = app.get('port');
 protocol = app.get('protocol');
