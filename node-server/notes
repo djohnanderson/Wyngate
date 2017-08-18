@@ -1,6 +1,6 @@
 cd to this directory
 node --inspect server.js
-or break on first statement: node --inspect-brk server.js
-Open about:inspect in Chrome
+or break on first statement: NODE_ENV=development node --inspect-brk server.js
+Open chrome://inspect/#device
 
 goto http://localhost:3000/
