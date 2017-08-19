@@ -37,10 +37,8 @@ var DXBackend = {
 
         try {
             jsonfile.readFile(enableDatesFile, function(error, object) {
-                console.log ('getVideoDates user: ', request.session.user, ' error: ', error);
                 if (request.session.user === 'guest' && !error)
                     merge (enableDates, object);
-                console.log ('start: ', enableDates.start, ' end: ', enableDates.end);
 
                 fs.readdir(resourcesDirectory, function (error, list) {
                     if (error)
