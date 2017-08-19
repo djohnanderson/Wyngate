@@ -1,0 +1,13 @@
+[Service]
+ExecStart=/usr/bin/node /home/john/domains/djohnanderson.com/node-server/server.js
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=/home/john/domains/djohnanderson.com/node-server/
+SyslogIdentifier=node-wyngate
+User=john
+Group=john
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
