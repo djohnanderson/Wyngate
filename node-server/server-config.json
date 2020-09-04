@@ -2,8 +2,8 @@
     "ServerConfig-production": {
         "port": 3000,
         "protocol": "https",
-        "SSLKey": "/home/john/domains/djohnanderson.com/server.key",
-        "SSLCertificate": "/home/john/domains/djohnanderson.com/server.crt",
+        "SSLKey": "/usr/local/directadmin/data/users/john/domains/djohnanderson.com.key",
+        "SSLCertificate": "/usr/local/directadmin/data/users/john/domains/djohnanderson.com.cert",
         "logger": "default",
         "enableCompression": true,
         "webRoot": "/public",

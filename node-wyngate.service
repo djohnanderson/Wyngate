@@ -6,7 +6,7 @@ StandardError=syslog
 WorkingDirectory=/home/john/domains/djohnanderson.com/node-server/
 SyslogIdentifier=node-wyngate
 User=john
-Group=john
+Group=access
 Environment=NODE_ENV=production
 
 [Install]
