@@ -6,119 +6,116 @@ var fs = require('fs'),
     jsonfile = require('jsonfile'),
     merge = require('merge'),
     resourcesDirectory = path.join(process.cwd() + '/public/resources/wyngate/'),
-    enableDatesFile = path.join(resourcesDirectory, 'enableDates.json'),
-    defaultEnableDates = {
-        start: "2000-00-00",
-        end: "2099-12-31"
+    guestDateRangeFile = path.join(resourcesDirectory, 'guestDateRange.json'),
+    defaultGuestDateRange = {
+        start: "",
+        end: ""
     };
 
 var DXBackend = {
     setEnableDates: function(params, callback, sessionID, request) {
-        var user = request.session.user,
-        enableDates;
-
-        if (user === 'john') {
-            enableDates = merge(true, defaultEnableDates);
-            jsonfile.readFile(enableDatesFile, function(error, object) {
-                if (!error)
-                    merge (enableDates, object);
-                merge (enableDates, params);
-                jsonfile.writeFile(enableDatesFile, enableDates); // ignore errors
-            });
-        }
+        jsonfile.readFile(guestDateRangeFile, function(error, guestDateRange) {
+            if (error)
+                guestDateRange = merge(true, defaultGuestDateRange);
+            merge (guestDateRange, params);
+            jsonfile.writeFile(guestDateRangeFile, guestDateRange); // ignore errors
+        });
     },
 
-    getVideoDates: function(params, callback, sessionID, request){
+    getVideoDates: function(params, callback, sessionID, request) {
         var dates = [],
             disabledDates = [],
-            enableDates = merge(true, defaultEnableDates),
-            resourcesDirectory = path.join(process.cwd() + '/public/resources/wyngate/'),
-            date, lastIndex, minDate, maxDate, length, nextVideoDate, yearMonthDate;
+            errorFunction = function(message) {
+                callback(null, {
+                    success: false,
+                    msg: message
+                });
+            },
+            date, start, end, userName, lastIndex, minDate, maxDate, length, nextVideoDate, yearMonthDate;
 
-        try {
-            jsonfile.readFile(enableDatesFile, function(error, object) {
-                if (request.session.user === 'guest' && !error)
-                    merge (enableDates, object);
+        jsonfile.readFile(guestDateRangeFile, function(error, guestDateRange) {
+            if (error)
+                guestDateRange = merge(true, defaultGuestDateRange);
+            start = guestDateRange.start;
+            end = guestDateRange.end;
+            userName = params.userName;
 
-                fs.readdir(resourcesDirectory, function (error, list) {
-                    if (error)
-                        throw error;
+            fs.readdir(resourcesDirectory, function(error, list) {
+                if (error)
+                    errorFunction('Error reading videos: "' + error.message + '"');
+                else {
                     lastIndex = list.length - 1;
                     if (lastIndex < 0)
-                        throw new Error("No video's found");
+                        errorFunction('No videos found');
                     else
-                        list.forEach(function (file, index) {
-                            fs.stat(resourcesDirectory + file + '/timelapse.mp4', function (error, stat) {
+                        list.forEach(function(file, index) {
+                            fs.stat(resourcesDirectory + file + '/timelapse.mp4', function(error, stat) {
                                 if (stat && stat.isFile()) {
                                     date = '20' + file.substring(5);
-                                    if (date >= enableDates.start && date <= enableDates.end)
+                                    if ((userName !== 'guest') || ((!start || date >= start) && (!end || date <= end)))
                                         dates.push(date);
                                 }
                                 if (index == lastIndex) {
                                     length = dates.length;
                                     if (length === 0)
-                                        throw new Error("No video's found");
-                                    dates.sort();
-                                    date = moment(dates.shift(), 'YYYY-MM-DD');
-                                    minDate = date.format('MM/DD/YYYY');
-                                    maxDate = moment(dates[length-2], 'YYYY-MM-DD').format('MM/DD/YYYY');
-                                    if (dates.length) {
-                                        nextVideoDate = dates.shift();
-                                        while(true) {
-                                            date.add('days', 1);
-                                            yearMonthDate = date.format('YYYY-MM-DD');
-                                            if (yearMonthDate === nextVideoDate) {
-                                                if (dates.length === 0)
-                                                    break;
-                                                nextVideoDate = dates.shift();
-                                            } else
-                                                disabledDates.push(date.format('MM/DD/YYYY'));
+                                        errorFunction("No videos found");
+                                    else {
+                                        dates.sort();
+                                        maxDate = moment(dates[length - 1], 'YYYY-MM-DD').format('MM/DD/YYYY');
+                                        date = moment(dates.shift(), 'YYYY-MM-DD');
+                                        minDate = date.format('MM/DD/YYYY');
+
+                                        if (dates.length) {
+                                            nextVideoDate = dates.shift();
+                                            while (true) {
+                                                date.add(1, 'days');
+                                                yearMonthDate = date.format('YYYY-MM-DD');
+                                                if (yearMonthDate === nextVideoDate) {
+                                                    if (dates.length === 0)
+                                                        break;
+                                                    nextVideoDate = dates.shift();
+                                                } else
+                                                    disabledDates.push(date.format('MM/DD/YYYY'));
+                                            }
                                         }
+                                        callback(null, {
+                                            success: true,
+                                            minDate: minDate,
+                                            maxDate: maxDate,
+                                            disabledDates: disabledDates,
+                                            guestDateRange: guestDateRange
+                                        });
                                     }
-                                    callback(null, {
-                                        success: true,
-                                        params: params,
-                                        minDate: minDate,
-                                        maxDate: maxDate,
-                                        disabledDates: disabledDates
-                                    });
                                 }
                             });
                         });
-                });
+                }
             });
-        } catch (error) {
-            callback(null, {
-                success: false,
-                msg: error.message,
-                params: params
-            });
-        }
+        });
     },
 
     authenticate: function(params, callback, sessionID, request, response){
-        var username = params.username,
+        var userName = params.userName,
             password = params.password,
             users = {'john': 'sha1$0676e27f$1$90d919a8de6432587a5d43fa6c476dff2515e9b0',
                      'guest': 'sha1$4d537d41$1$49789d069628fc02f77c998c34d176ed509e8d13'},
             hash, result;
 
         //console.log(passwordHash.generate('guest'));
-        hash = users[username];
+        hash = users[userName];
         if (hash && passwordHash.verify(password, hash)) {
             result = {
                 success: true,
-                message: 'Login successful'
+                message: 'Login successful',
+                isSuperUser: userName === 'john'
             };
-            request.session.user = username;
-            console.log ('successful login: ', request.session.user);
+            console.log ('successful login: ', userName);
         } else {
             result = {
                 success: false,
                 message: 'Login unsuccessful'
             };
-            request.session.user = "";
-            console.log ('insuccessful login: ', request.session.user);
+            console.log ('insuccessful login: ', userName);
         }
         callback(null, result);
     }
