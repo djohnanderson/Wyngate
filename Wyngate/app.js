@@ -1,13 +1,18 @@
 /*
-    This file is generated and updated by Sencha Cmd. You can edit this file as
-    needed for your application, but these edits will have to be merged by
-    Sencha Cmd when upgrading.
-*/
-
+ * This file launches the application by asking Ext JS to create
+ * and launch() the Application class.
+ */
 Ext.application({
+    extend: 'Wyngate.Application',
+
     name: 'Wyngate',
 
-    extend: 'Wyngate.Application',
-    
-    autoCreateViewport: true
+    requires: [
+        // This will automatically load all classes in the Wyngate namespace
+        // so that application classes do not need to require each other.
+        'Wyngate.*'
+    ],
+
+    // The name of the initial view to create.
+    mainView: 'Wyngate.view.main.CardPanel'
 });

@@ -1,1 +1,5 @@
-/.sencha_backup/
+/build
+bootstrap.*
+classic.json*
+modern.json*
+.sencha
