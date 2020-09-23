@@ -15,7 +15,7 @@ Ext.define('Wyngate.view.main.LoginCard', {
         pack: 'center',
         type: 'hbox'
     },
-    
+
     items: [{
         xtype: 'formpanel',
         reference: 'loginForm',
@@ -54,5 +54,4 @@ Ext.define('Wyngate.view.main.LoginCard', {
             text: 'Login'
         }]
     }]
-
 });

@@ -24,5 +24,4 @@ Ext.define('Wyngate.view.main.CardPanel', {
             logout: 'onLogout'
         }
     }]
-
 });

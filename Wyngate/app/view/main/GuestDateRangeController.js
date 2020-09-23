@@ -3,7 +3,7 @@ Ext.define('Wyngate.view.main.GuestDateRangeController', {
 
     alias: 'controller.guestDateRangeController',
 
-    onSave: function () {
+    onSave: function() {
         var view = this.getView(),
             guestDateRange = {},
             startDateField = this.lookupReference('startDateField'),
@@ -19,27 +19,27 @@ Ext.define('Wyngate.view.main.GuestDateRangeController', {
         }
     },
 
-    onCancel: function (){
+    onCancel: function() {
         this.getView().close();
     },
 
-    enableDisableSave () {
+    enableDisableSave() {
         var saveButton = this.lookupReference('saveButton');
-        
-        saveButton.setDisabled (!this.getView().isValid());
+
+        saveButton.setDisabled(!this.getView().isValid());
     },
 
     init: function(component) {
         var me = this,
             guestDateRange = component.config.guestDateRange,
-            setDateField = function (fieldName, value) {
-                var dateField = me.lookupReference (fieldName);
-                
-                dateField.setValue(Ext.Date.parse (value, 'Y-m-d'))
+            setDateField = function(fieldName, value) {
+                var dateField = me.lookupReference(fieldName);
+
+                dateField.setValue(Ext.Date.parse(value, 'Y-m-d'))
             }
 
-        setDateField ('startDateField', guestDateRange.start);
-        setDateField ('endDateField', guestDateRange.end);
+        setDateField('startDateField', guestDateRange.start);
+        setDateField('endDateField', guestDateRange.end);
         me.enableDisableSave();
     }
 });

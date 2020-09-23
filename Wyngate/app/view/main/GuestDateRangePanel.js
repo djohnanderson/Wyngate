@@ -17,8 +17,7 @@ Ext.define('Wyngate.view.main.GuestDateRangePanel', {
         align: 'stretch'
     },
 
-    items: [
-        {
+    items: [{
         xtype: 'datefield',
         flex: 1,
         margin: '0, 15, 0, 0',
@@ -27,7 +26,7 @@ Ext.define('Wyngate.view.main.GuestDateRangePanel', {
         name: 'startDate',
         listeners: {
             //Validation doesn't seem complete in Modern toolkit, e.g. formBind on buttons isn't implemented
-            keyup: 'enableDisableSave'
+            errorchange: 'enableDisableSave'
         }
     }, {
         xtype: 'datefield',
@@ -37,7 +36,7 @@ Ext.define('Wyngate.view.main.GuestDateRangePanel', {
         label: 'End Date',
         name: 'endDate',
         listeners: {
-            keyup: 'enableDisableSave'
+            errorchange: 'enableDisableSave'
         }
     }],
 
@@ -50,7 +49,3 @@ Ext.define('Wyngate.view.main.GuestDateRangePanel', {
         handler: 'onSave'
     }]
 });
-
-
-
-

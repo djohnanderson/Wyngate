@@ -8,6 +8,7 @@ Ext.define('Wyngate.view.main.VideoCard', {
         xtype: 'datefield',
         reference: 'dateField',
         label: 'Wyngae video for:',
+        badFormatMessage: 'Invalid Date',
         labelAlign: 'left',
         labelWidth: 107,
         width: 200,
@@ -20,7 +21,7 @@ Ext.define('Wyngate.view.main.VideoCard', {
         text: 'Guest Date Range',
         reference: 'guestDateRangeButton',
         handler: 'setGuestDatesRange'
-    },'->', {
+    }, '->', {
         xtype: 'button',
         text: 'Logout',
         handler: 'onLogout'

@@ -1,6 +1,6 @@
 Ext.define('Wyngate.view.main.LoginCardController', {
     extend: 'Ext.app.ViewController',
-  
+
     alias: 'controller.loginCard',
 
     onTextSpecialKey: function(field, event) {
@@ -14,7 +14,7 @@ Ext.define('Wyngate.view.main.LoginCardController', {
             formValues = loginForm.getValues(),
             lastOffset, duration, delay, isSuperUser;
 
-        ExtRemote.DXBackend.authenticate (formValues,
+        ExtRemote.DXBackend.authenticate(formValues,
             function(result, event) {
                 if (!event.status)
                     Ext.Msg.alert('Unexpected Error', event.message);
@@ -24,19 +24,26 @@ Ext.define('Wyngate.view.main.LoginCardController', {
                         delay = 0;
                         lastOffset = 0;
                         Ext.each([-8, 8, -8, 8, -8, 8, 0, 0], function(offset) {
+                            //Unfortunatley Mozilla doesn't run animations smoothly
                             Ext.Anim.run(loginForm, 'raw', {
                                 duration: duration,
                                 delay: delay,
-                                from: {left: lastOffset.toString() + 'px'},
-                                to: {left: offset.toString() + 'px'}
+                                from: {
+                                    left: lastOffset.toString() + 'px'
+                                },
+                                to: {
+                                    left: offset.toString() + 'px'
+                                }
                             });
                             delay += duration;
                             lastOffset = offset;
                         });
                     } else {
                         isSuperUser = result.isSuperUser;
-                        ExtRemote.DXBackend.getVideoDates ({userName: formValues.userName},
-                            function(result, event){
+                        ExtRemote.DXBackend.getVideoDates({
+                                userName: formValues.userName
+                            },
+                            function(result, event) {
                                 var panel, message;
 
                                 if (!event.status)

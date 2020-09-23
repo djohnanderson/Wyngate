@@ -1,19 +1,19 @@
 Ext.define('Wyngate.view.main.VideoCardController', {
     extend: 'Ext.app.ViewController',
-    
-    require: [    
+
+    require: [
         'Wyngate.view.main.GuestDateRangePanel'
     ],
 
     alias: 'controller.videoPanel',
 
-    onLogin: function (params) {
+    onLogin: function(params) {
         var maxDate, minDate, dateField;
 
         this.params = params;
         maxDate = Ext.Date.parse(params.maxDate, 'm/d/Y'),
-        minDate = Ext.Date.parse(params.minDate, 'm/d/Y'),
-        dateField = this.lookupReference('dateField');
+            minDate = Ext.Date.parse(params.minDate, 'm/d/Y'),
+            dateField = this.lookupReference('dateField');
         dateField.setMinDate(minDate);
         dateField.setMaxDate(maxDate);
         if (params.disabledDates.length)
@@ -24,6 +24,9 @@ Ext.define('Wyngate.view.main.VideoCardController', {
         dateField.setValidators([
             this.validateDate
         ]);
+        
+        dateField.maxDateMessage = 'The date must be on or before {0}'
+        dateField.minDateMessage = 'The date must be on or after {0}'
 
         this.lookupReference('guestDateRangeButton').setHidden(!params.isSuperUser);
     },
@@ -42,7 +45,7 @@ Ext.define('Wyngate.view.main.VideoCardController', {
             this.currentDate = date;
             videoPane.stop();
             videoURL = 'resources/wyngate/image' + Ext.Date.format(date, 'y-m-d') + '/timelapse.mp4';
-            videoPane.setUrl (videoURL);
+            videoPane.setUrl(videoURL);
             videoPane.setCurrentTime(10);
             if (videoPane.ghost.isVisible()) {
                 videoPane.ghost.hide();
@@ -51,13 +54,13 @@ Ext.define('Wyngate.view.main.VideoCardController', {
             videoPane.play();
         }
     },
-  
+
     setGuestDatesRange: function() {
         var me = this,
             panel,
             params = {
                 guestDateRange: me.params.guestDateRange,
-                callback: function (newGuestDateRange) {
+                callback: function(newGuestDateRange) {
                     me.params.guestDateRange = newGuestDateRange;
                 }
             };
