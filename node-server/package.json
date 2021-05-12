@@ -11,7 +11,7 @@
     "express": "^4.17.1",
     "extdirect": "^2.0.5",
     "jsonfile": "^6.0.1",
-    "merge": "^1.2.1",
+    "merge": "^2.1.1",
     "moment": "^2.27.0",
     "morgan": "^1.10.0",
     "nconf": "^0.10.0",
