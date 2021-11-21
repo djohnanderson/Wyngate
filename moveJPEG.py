@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os, re, shutil, time
 from datetime import datetime
 
@@ -21,5 +21,9 @@ for filename in files:
                     else:
                         if not os.path.exists(directory):
                             os.makedirs(directory)
+                        # Unfortunatley shutil.move doesn't overwrite -- even if I specify full paths
+                        destination = os.path.join(directory, filename)
+                        if os.path.exists(destination):
+                            os.remove(destination)
                         shutil.move(filename, directory)
 
