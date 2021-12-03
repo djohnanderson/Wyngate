@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import os, re, sys, shutil, argparse, tempfile
-from datetime import datetime
+from datetime import date
+from datetime import timedelta
 
 parser = argparse.ArgumentParser(description='Make a video from JPEGs in a folder')
 parser.add_argument('-f','--folder', help='Folder of JPEGs', default="")
@@ -14,7 +15,7 @@ args = parser.parse_args()
 
 folder = args.folder
 if folder == "":
-    yesterday = datetime.today() - datetime.timedelta (days=1)
+    yesterday = date.today() - timedelta (days=1)
     folder = 'image%02d-%02d-%02d' % ((yesterday.year - 2000), yesterday.month, yesterday.day)
 folder = folder + '/'
 
