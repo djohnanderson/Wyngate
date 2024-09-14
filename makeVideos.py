@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os, re, sys, argparse, datetime
 
@@ -38,7 +38,7 @@ def parseDatePath (dateName):
         except ValueError:
             pass
     if date is None:
-        print '%s needs to be in the form imageYY-MM-DD' % dateName
+        print ('%s needs to be in the form imageYY-MM-DD' % dateName)
         sys.exit(0)
     if path == "":
         path = './'
@@ -48,19 +48,19 @@ startPath, startDate = parseDatePath ('start')
 endPath, endDate = parseDatePath ('end')
 bitrate = args.bitrate
 if startDate > endDate:
-    print 'start must be greater that or equal to end'
+    print ('start must be greater that or equal to end')
     sys.exit(0)
 if startPath != "" and not startPath.endswith('/'):
-    print 'Bad path to the starting foler'
+    print ('Bad path to the starting foler')
     sys.exit(0)
 if endPath != "" and startPath != endPath:
-    print 'The path to start must be the same as the path to end or end must not have a path'
+    print( 'The path to start must be the same as the path to end or end must not have a path')
     sys.exit(0)
 if bitrate is not None:
     try:
         bitrate = int(bitrate)
     except ValueError:
-        print 'bitrate must be an integer'
+        print ('bitrate must be an integer')
         sys.exit(0)
 files = os.listdir(startPath)
 files.sort()

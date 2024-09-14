@@ -95,7 +95,7 @@ var DXBackend = {
     },
 
     authenticate: function(params, callback, sessionID, request, response){
-        var userName = params.userName,
+        var userName = params.username,
             password = params.password,
             users = {'john': 'sha1$0676e27f$1$90d919a8de6432587a5d43fa6c476dff2515e9b0',
                      'guest': 'sha1$4d537d41$1$49789d069628fc02f77c998c34d176ed509e8d13'},
