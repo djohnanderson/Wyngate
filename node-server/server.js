@@ -1,6 +1,6 @@
 //Set up common namespace for the application
 //As this is the global namespace, it will be available across all modules
-if(!global.App){
+if (!global.App) {
     global.App = {};
 }
 
@@ -18,7 +18,9 @@ var express = require('express'),
 
 var app = express();
 
-nconf.env().file({file: path.join(__dirname, 'server-config.json')});
+nconf.env().file({
+    file: path.join(__dirname, 'server-config.json')
+});
 
 environment = global.App.mode = process.env.NODE_ENV || 'development';
 
@@ -34,18 +36,18 @@ app.use(errorhandler());
 // parse application/x-www-form-urlencoded
 app.use(bodyparser.json());
 
-if(ServerConfig.enableCompression){
+if (ServerConfig.enableCompression) {
     var compress = require('compression');
 
     app.use(compress());
 }
 
-if(ServerConfig.enableSessions){
+if (ServerConfig.enableSessions) {
     var cookieSession = require('cookie-session');
 
     if (environment === 'production')
         app.set('trust proxy', 1) // trust first proxy 
-    
+
     app.use(cookieSession({
         keys: [ServerConfig.sessionSecret1, ServerConfig.sessionSecret2]
     }));
@@ -54,9 +56,9 @@ if(ServerConfig.enableSessions){
 app.use(express.static(path.join(__dirname, ServerConfig.webRoot)));
 
 //CORS Supports
-if(ServerConfig.enableCORS){
+if (ServerConfig.enableCORS) {
 
-    app.use( function(req, res, next) {
+    app.use(function(req, res, next) {
         res.header('Access-Control-Allow-Origin', ServerConfig.AccessControlAllowOrigin); // allowed hosts
         res.header('Access-Control-Allow-Methods', ServerConfig.AccessControlAllowMethods); // what methods should be allowed
         res.header('Access-Control-Allow-Headers', ServerConfig.AccessControlAllowHeaders); //specify headers
@@ -65,8 +67,7 @@ if(ServerConfig.enableCORS){
 
         if (req.method === 'OPTIONS') {
             res.send(204);
-        }
-        else {
+        } else {
             next();
         }
     });
@@ -77,22 +78,29 @@ extdirectRouter = extdirect.initRouter(ExtDirectConfig);
 
 //GET method returns API
 app.get(ExtDirectConfig.apiUrl, function(request, response) {
-    try{
+    try {
         extdirectApi.getAPI(
-            function(api){
-                response.writeHead(200, {'Content-Type': 'application/json'});
+            function(api) {
+                response.writeHead(200, {
+                    'Content-Type': 'application/json'
+                });
                 response.end(api);
             }, request, response
         );
-    }catch(e){
+    } catch (e) {
         console.log(e);
     }
 });
 
 // Ignoring any GET requests on class path
 app.get(ExtDirectConfig.classRouteUrl, function(request, response) {
-    response.writeHead(200, {'Content-Type': 'application/json'});
-    response.end(JSON.stringify({success:false, msg:'Unsupported method. Use POST instead.'}));
+    response.writeHead(200, {
+        'Content-Type': 'application/json'
+    });
+    response.end(JSON.stringify({
+        success: false,
+        msg: 'Unsupported method. Use POST instead.'
+    }));
 });
 
 // POST request process route and calls class
@@ -104,16 +112,16 @@ port = app.get('port');
 protocol = app.get('protocol');
 
 if (protocol === 'http') {
-    http.createServer(app).listen(port, function(){
+    http.createServer(app).listen(port, '0.0.0.0', function() {
         console.log("Express server %s listening on port %d in %s mode", protocol, port, environment);
     });
 } else {
     var options = {
-      key: fs.readFileSync(ServerConfig.SSLKey),
-      cert: fs.readFileSync(ServerConfig.SSLCertificate)
+        key: fs.readFileSync(ServerConfig.SSLKey),
+        cert: fs.readFileSync(ServerConfig.SSLCertificate)
     };
 
-    https.createServer(options, app).listen(port, function(){
+    https.createServer(options, app).listen(port, '0.0.0.0', function() {
         console.log("Express server %s listening on port %d in %s mode", protocol, port, environment);
     });
 }
